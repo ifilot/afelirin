@@ -6,7 +6,7 @@
       {
          "resolution_x": 1600,
          "resolution_y": 900,
-         "full_screen": true
+         "full_screen": false
       }
    }
 }
