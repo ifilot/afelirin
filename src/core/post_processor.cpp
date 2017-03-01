@@ -234,16 +234,19 @@ void PostProcessor::render(const std::unique_ptr<Shader>& shader) {
 
     shader->link_shader();
 
-    const float screen_ratios = Screen::get().get_aspect_ratio_screen() / Screen::get().get_aspect_ratio_resolution();
-
+    // calculate scaling
     float sx, sy;
-    if(Screen::get().get_width() > Screen::get().get_height()) {
-        // fit screen to height
-        sy = 1.0f;
-        sx = 1.0f / screen_ratios;
-    } else {
+
+    // try letterbox mode
+    float scale = (float)Screen::get().get_width() / (float)Screen::get().get_resolution_x();
+    unsigned int height = scale * (float)Screen::get().get_resolution_y();
+
+    if(height < Screen::get().get_height()) { // use letterbox mode
         sx = 1.0f;
-        sy = screen_ratios;
+        sy = Screen::get().get_aspect_ratio_screen() / Screen::get().get_aspect_ratio_resolution();
+    } else {
+        sx = Screen::get().get_aspect_ratio_resolution() / Screen::get().get_aspect_ratio_screen();
+        sy = 1.0f;
     }
 
     const glm::mat4 mvp = glm::scale(glm::vec3(sx, sy, 1.0f));

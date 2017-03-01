@@ -59,8 +59,6 @@ Display::Display() {
         this->m_window = glfwCreateWindow(mode->width, mode->height, "Netris" , monitor, NULL);
     }
 
-    glViewport(0, 0, Screen::get().get_resolution_x(), Screen::get().get_resolution_y());
-
     // check if the window is properly constructed
     if (!this->m_window) {
         glfwTerminate();
@@ -110,8 +108,15 @@ Display::Display() {
     //glfwSetInputMode(this->m_window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
     // configure camera dimensions
+    int width, height;
+    glfwGetWindowSize(this->m_window, &width, &height);
+    Screen::get().set_width(width);
+    Screen::get().set_height(height);
+    Screen::get().set_resolution_x(Settings::get().get_uint_from_keyword("settings.screen.resolution_x"));
+    Screen::get().set_resolution_y(Settings::get().get_uint_from_keyword("settings.screen.resolution_y"));
     Camera::get().set_aspect_ratio(Screen::get().get_aspect_ratio_resolution());
     Camera::get().update();
+    PostProcessor::get().window_reshape();
 }
 
 /**

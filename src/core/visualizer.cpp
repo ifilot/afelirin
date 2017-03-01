@@ -1,5 +1,5 @@
 /**************************************************************************
- *   visualizer.cpp  --  This file is part of Afelirin.                   *
+ *   visualizer.cpp  --  This file is part of Quadtree.                   *
  *                                                                        *
  *   Copyright (C) 2016, Ivo Filot                                        *
  *                                                                        *
@@ -72,7 +72,7 @@ void Visualizer::run(int argc, char* argv[]) {
         if(current_time - last_time >= 1.0) {
 
             std::string sfps = boost::lexical_cast<std::string>(this->num_frames);
-            Display::get().set_window_title("Afelirin");
+            Display::get().set_window_title("Quadtree");
 
             // place in the function any commands that should be done every second
             this->update_second();
@@ -234,7 +234,7 @@ void Visualizer::pre_draw() {
  *
  */
 void Visualizer::draw() {
-    FontWriter::get().write_text(0, 50.f, 50.f, 0.f, glm::vec3(1,1,1), "Afelirin::Game Engine");
+    FontWriter::get().write_text(0, 50.f, 50.f, 0.f, glm::vec3(1,1,1), "Quadtree");
 }
 
 /**
