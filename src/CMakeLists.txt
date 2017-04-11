@@ -83,8 +83,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
 file(GLOB_RECURSE SOURCES "*.cpp")
 add_executable(afelirin ${SOURCES})
 
-# Set C++11
-add_definitions(-std=c++11)
+# Set C++14
+add_definitions(-std=c++14)
 
 # Link libraries
 if(UNIX AND NOT APPLE)

@@ -1,14 +1,15 @@
 /**************************************************************************
- *   asset_manager.h  --  This file is part of Afelirin.                  *
+ *   engine_commands.h  --  This file is part of AFELIRIN.                *
  *                                                                        *
- *   Copyright (C) 2016, Ivo Filot                                        *
+ *   Copyright (C) 2017, Ivo Filot                                        *
  *                                                                        *
- *   Netris is free software: you can redistribute it and/or modify       *
- *   it under the terms of the GNU General Public License as published    *
- *   by the Free Software Foundation, either version 3 of the License,    *
- *   or (at your option) any later version.                               *
+ *   AFELIRIN is free software:                                           *
+ *   you can redistribute it and/or modify it under the terms of the      *
+ *   GNU General Public License as published by the Free Software         *
+ *   Foundation, either version 3 of the License, or (at your option)     *
+ *   any later version.                                                   *
  *                                                                        *
- *   Netris is distributed in the hope that it will be useful,            *
+ *   AFELIRIN is distributed in the hope that it will be useful,          *
  *   but WITHOUT ANY WARRANTY; without even the implied warranty          *
  *   of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.              *
  *   See the GNU General Public License for more details.                 *
@@ -18,14 +19,6 @@
  *                                                                        *
  **************************************************************************/
 
-#include "core/asset_manager.h"
-#include "core/engine.h"
+// just load all commands for the engine
 
-int main(int argc, char* argv[]) {
-    AssetManager::get().init(argv[0]);
-
-    static Engine engine;
-    engine.run(argc, argv);
-
-    return 0;
-}
+#include "command_on_resize.h"

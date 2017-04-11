@@ -1,7 +1,7 @@
 /**************************************************************************
- *   screen.cpp  --  This file is part of AFELIRIN.                       *
+ *   command.h  --  This file is part of AFELIRIN.                        *
  *                                                                        *
- *   Copyright (C) 2016, Ivo Filot                                        *
+ *   Copyright (C) 2017, Ivo Filot                                        *
  *                                                                        *
  *   AFELIRIN is free software:                                           *
  *   you can redistribute it and/or modify it under the terms of the      *
@@ -19,12 +19,27 @@
  *                                                                        *
  **************************************************************************/
 
-#include "screen.h"
+#ifndef _COMMAND_H
+#define _COMMAND_H
 
-Screen::Screen() {
-    this->width = 800;
-    this->height = 600;
+class CommandP0 {
+public:
+    virtual ~CommandP0() {}
+    virtual void execute() = 0;
+};
 
-    this->resolution_x = 640;
-    this->resolution_y = 480;
-}
+template<typename P0>
+class CommandP1 {
+public:
+    virtual ~CommandP1() {}
+    virtual void execute(P0) = 0;
+};
+
+template<typename P0, typename P1>
+class CommandP2 {
+public:
+    virtual ~CommandP2() {}
+    virtual void execute(P0, P1) = 0;
+};
+
+#endif //_COMMAND_H

@@ -26,7 +26,14 @@
  *
  * @return      FontWriter instance
  */
-FontWriterImpl::FontWriterImpl() : texture_slot(FONT_TEXTURE_SLOT) {
+FontWriter::FontWriter(const std::shared_ptr<Screen>& _screen) :
+        texture_slot(FONT_TEXTURE_SLOT),
+        screen(_screen)
+    {
+    if(!screen) {
+        throw std::logic_error("Invalid pointer to screen object found in FontWriter");
+    }
+
     this->shader = std::shared_ptr<Shader>(new Shader("assets/shaders/text_sdf"));
     this->shader->add_attribute(ShaderAttribute::POSITION, "position");
     this->shader->add_attribute(ShaderAttribute::TEXTURE_COORDINATE, "texture_coordinate");
@@ -47,9 +54,9 @@ FontWriterImpl::FontWriterImpl() : texture_slot(FONT_TEXTURE_SLOT) {
  *
  * @return      reference to the CharacterAtlas object
  */
-unsigned int FontWriterImpl::add_font(const std::string& _fontfile, unsigned int pt, float _width, float _edge, unsigned int cstart, unsigned int ccount) {
+unsigned int FontWriter::add_font(const std::string& _fontfile, unsigned int pt, float _width, float _edge, unsigned int cstart, unsigned int ccount) {
     std::string filename = AssetManager::get().get_root_directory() + _fontfile;
-    this->fonts.push_back(CharacterAtlas(filename, pt, _width, _edge, this->shader, cstart, ccount));
+    this->fonts.emplace_back(new CharacterAtlas(filename, pt, _width, _edge, this->shader, this->screen, cstart, ccount));
     return this->fonts.size() - 1;
 }
 
@@ -63,9 +70,9 @@ unsigned int FontWriterImpl::add_font(const std::string& _fontfile, unsigned int
  * @param[in]   line        string holding the characters
  *
  */
-void FontWriterImpl::write_text(unsigned int font, float x, float y, float z, const glm::vec3& color, const std::string& line) {
+void FontWriter::write_text(unsigned int font, float x, float y, float z, const glm::vec3& color, const std::string& line) {
     if(font < this->fonts.size()) {
-        this->fonts[font].write_text(x, y, z, color, line);
+        this->fonts[font]->write_text(x, y, z, color, line);
     }
 }
 
@@ -78,9 +85,9 @@ void FontWriterImpl::write_text(unsigned int font, float x, float y, float z, co
  * @param[in]   line        string holding the characters
  *
  */
-void FontWriterImpl::get_bounding_box(unsigned int font, int* width, int* height, const std::string& line) {
+void FontWriter::get_bounding_box(unsigned int font, int* width, int* height, const std::string& line) {
     if(font < this->fonts.size()) {
-        this->fonts[font].get_bounding_box(width, height, line);
+        this->fonts[font]->get_bounding_box(width, height, line);
     } else {
         std::cerr << "Invalid font index requested." << std::endl;
     }
@@ -89,8 +96,8 @@ void FontWriterImpl::get_bounding_box(unsigned int font, int* width, int* height
 /*
  * @brief   Utility method that prints the texture of the 1st CharacterAtlas on the screen
  */
-void FontWriterImpl::draw() {
-    this->fonts[0].draw_charmap_on_screen();
+void FontWriter::draw() {
+    this->fonts[0]->draw_charmap_on_screen();
 }
 
 /*
@@ -103,11 +110,18 @@ void FontWriterImpl::draw() {
  * @param[in]   _ccount         number of characters to load
  *
  */
-FontWriterImpl::CharacterAtlas::CharacterAtlas(const std::string& font_file, unsigned int _pt, float _width, float _edge,
-        std::shared_ptr<Shader> _shader, unsigned int _cstart, unsigned int _ccount) : texture_slot(FONT_TEXTURE_SLOT) {
+FontWriter::CharacterAtlas::CharacterAtlas(const std::string& font_file,
+                                           unsigned int _pt,
+                                           float _width,
+                                           float _edge,
+                                           const std::shared_ptr<Shader>& _shader,
+                                           const std::shared_ptr<Screen>& _screen,
+                                           unsigned int _cstart,
+                                           unsigned int _ccount) : texture_slot(FONT_TEXTURE_SLOT) {
     this->display_charmap = false;
     this->is_cached = false;
     this->shader = _shader;
+    this->screen = _screen;
     this->cstart = _cstart;
     this->ccount = _ccount;
     this->pt = _pt;
@@ -136,15 +150,15 @@ FontWriterImpl::CharacterAtlas::CharacterAtlas(const std::string& font_file, uns
  * @param[in]   line        line holding characters
  *
  */
-void FontWriterImpl::CharacterAtlas::write_text(float x, float y, float z, const glm::vec3& color, const std::string& line) {
+void FontWriter::CharacterAtlas::write_text(float x, float y, float z, const glm::vec3& color, const std::string& line) {
     if(line.size() == 0) {
         return;
     }
 
     const glm::mat4 projection = glm::ortho(0.0f,
-                                      (float)Screen::get().get_resolution_x(),
+                                      (float)this->screen->get_resolution_x(),
                                       0.0f,
-                                      (float)Screen::get().get_resolution_y());
+                                      (float)this->screen->get_resolution_y());
 
     float xx = x;
     float yy = y;
@@ -207,7 +221,7 @@ void FontWriterImpl::CharacterAtlas::write_text(float x, float y, float z, const
  * @param[in]   line        string holding the characters
  *
  */
-void FontWriterImpl::CharacterAtlas::get_bounding_box(int* width, int* height, const std::string& line) {
+void FontWriter::CharacterAtlas::get_bounding_box(int* width, int* height, const std::string& line) {
     const float scale = this->pt / (float)this->base_font_size;
 
     *width = 0;
@@ -236,7 +250,7 @@ void FontWriterImpl::CharacterAtlas::get_bounding_box(int* width, int* height, c
 /**
  * @brief Load the characters on the GPU
  */
-void FontWriterImpl::CharacterAtlas::static_load() {
+void FontWriter::CharacterAtlas::static_load() {
     const float scale = this->pt / (float)this->base_font_size;
     const float pts = scale * (float)this->font_padding;
 
@@ -335,60 +349,7 @@ void FontWriterImpl::CharacterAtlas::static_load() {
     glBindVertexArray(0);
 }
 
-/**
- * @brief Copy constructor
- */
-FontWriterImpl::CharacterAtlas::CharacterAtlas(const FontWriterImpl::CharacterAtlas& other) :
-    glyphs(other.glyphs),
-    pt(other.pt),
-    sdf_width(other.sdf_width),
-    sdf_edge(other.sdf_edge),
-    display_charmap(other.display_charmap),
-    is_cached(other.is_cached),
-    texture_width(other.texture_width),
-    texture_height(other.texture_height),
-    texture(other.texture),
-    cstart(other.cstart),
-    ccount(other.ccount),
-    shader(other.shader),
-    texture_slot(FONT_TEXTURE_SLOT) {
-
-    this->vao = other.vao;
-    this->vbo[0] = other.vbo[0];
-    this->vbo[1] = other.vbo[1];
-    this->vbo[2] = other.vbo[2];
-}
-
-/**
- * @brief Move constructor
- */
-FontWriterImpl::CharacterAtlas::CharacterAtlas(FontWriterImpl::CharacterAtlas&& other) noexcept :
-    glyphs(other.glyphs),
-    pt(other.pt),
-    sdf_width(other.sdf_width),
-    sdf_edge(other.sdf_edge),
-    display_charmap(other.display_charmap),
-    is_cached(other.is_cached),
-    texture_width(other.texture_width),
-    texture_height(other.texture_height),
-    texture(other.texture),
-    cstart(other.cstart),
-    ccount(other.ccount),
-    shader(other.shader),
-    texture_slot(FONT_TEXTURE_SLOT) {
-
-    this->vao = other.vao;
-    this->vbo[0] = other.vbo[0];
-    this->vbo[1] = other.vbo[1];
-    this->vbo[2] = other.vbo[2];
-
-    other.vao = 0;
-    other.vbo[0] = 0;
-    other.vbo[1] = 0;
-    other.vbo[2] = 0;
-}
-
-FontWriterImpl::CharacterAtlas::~CharacterAtlas() {
+FontWriter::CharacterAtlas::~CharacterAtlas() {
     glDeleteBuffers(2, this->vbo);
     glDeleteVertexArrays(1, &this->vao);
 }
@@ -396,7 +357,7 @@ FontWriterImpl::CharacterAtlas::~CharacterAtlas() {
 /**
  * @brief Place a font in a texture and store the positions
  */
-void FontWriterImpl::CharacterAtlas::generate_character_map(const std::string& filename, const FT_Library& library) {
+void FontWriter::CharacterAtlas::generate_character_map(const std::string& filename, const FT_Library& library) {
     std::vector<std::vector<bool>> char_bitmaps(this->ccount);
     unsigned int img_width = 0;         // total image width
     unsigned int img_height = 0;        // total image height
@@ -579,7 +540,7 @@ void FontWriterImpl::CharacterAtlas::generate_character_map(const std::string& f
  * @param[in]   height              height of the char bitmap
  *
  */
-void FontWriterImpl::CharacterAtlas::calculate_distance_field(std::vector<uint8_t>& distance_field, const std::vector<bool>& data, int width, int height) {
+void FontWriter::CharacterAtlas::calculate_distance_field(std::vector<uint8_t>& distance_field, const std::vector<bool>& data, int width, int height) {
     const float max_dist = std::sqrt((float)(2 * this->sample_depth * this->sample_depth));
 
     for(int k=0; k<height; k++) {
@@ -613,7 +574,7 @@ void FontWriterImpl::CharacterAtlas::calculate_distance_field(std::vector<uint8_
  *
  * @return vector holding boolean values for the pixels
  */
-std::vector<bool> FontWriterImpl::CharacterAtlas::unpack_mono_bitmap(FT_Bitmap bitmap) {
+std::vector<bool> FontWriter::CharacterAtlas::unpack_mono_bitmap(FT_Bitmap bitmap) {
     std::vector<bool> result( (bitmap.rows + 2 * this->font_padding) * (bitmap.width + 2 * this->font_padding), false);
 
     for (int y = 0; y < (int)bitmap.rows; y++) {
@@ -639,11 +600,11 @@ std::vector<bool> FontWriterImpl::CharacterAtlas::unpack_mono_bitmap(FT_Bitmap b
 /**
  * @brief Display the complete character map (font atlas) on the screen (used for debugging purposes)
  */
-void FontWriterImpl::CharacterAtlas::draw_charmap_on_screen() {
+void FontWriter::CharacterAtlas::draw_charmap_on_screen() {
     const glm::mat4 projection = glm::ortho(0.0f,
-                                      (float)Screen::get().get_resolution_x(),
+                                      (float)this->screen->get_resolution_x(),
                                       0.0f,
-                                      (float)Screen::get().get_resolution_y());
+                                      (float)this->screen->get_resolution_y());
 
     // load the texture
     glActiveTexture(GL_TEXTURE1);

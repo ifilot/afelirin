@@ -1,5 +1,5 @@
 /**************************************************************************
- *   visualizer.cpp  --  This file is part of AFELIRIN.                   *
+ *   engine.cpp  --  This file is part of AFELIRIN.                       *
  *                                                                        *
  *   Copyright (C) 2016, Ivo Filot                                        *
  *                                                                        *
@@ -19,17 +19,17 @@
  *                                                                        *
  **************************************************************************/
 
-#include "visualizer.h"
+#include "engine.h"
 
 /**
- * @fn VisualizerImpl method
- * @brief VisualizerImpl constructor method
+ * @fn Engine method
+ * @brief Engine constructor method
  *
  * Loads up the display and initializes all entities.
  *
- * @return VisualizerImpl class
+ * @return Engine class
  */
-VisualizerImpl::VisualizerImpl():
+Engine::Engine():
     accumulator(0.0),       /* default accumulator should be zero */
     fps(60.0),              /* set the target framerate */
     num_frames(0) {
@@ -42,19 +42,34 @@ VisualizerImpl::VisualizerImpl():
     /* set the time at the frame start */
     this->frame_start = glfwGetTime();
 
-    /* make sure the display is loaded before loading the shader */
-    Display::get();
+    // set-up engine
+    this->engine_client = std::unique_ptr<EngineClient>(new EngineClient);
+
+    // load screen
+    this->screen = std::shared_ptr<Screen>(new Screen());
 
     // load PostProcessor
-    PostProcessor::get();
+    this->post_processor = std::shared_ptr<PostProcessor>(new PostProcessor(this->screen));
+    this->post_processor->window_reshape();
 
-    // Load any fonts
-    FontWriter::get().add_font("./assets/fonts/retro.ttf",
-                                14,              // font size
-                                0.43f, 0.25f,    // sdf settings
-                                32,             // start char
-                                222             // number of chars
-                                );
+    // load camera
+    this->camera = std::shared_ptr<Camera>(new Camera());
+
+    // Load font writer and fonts
+    this->font_writer = std::shared_ptr<FontWriter>(new FontWriter(this->screen));
+    this->font_writer->add_font("./assets/fonts/retro.ttf",
+                                    14,              // font size
+                                    0.43f, 0.25f,    // sdf settings
+                                    32,             // start char
+                                    222             // number of chars
+                                    );
+
+    this->screen->set_resolution_x(Settings::get().get_uint_from_keyword("settings.screen.resolution_x"));
+    this->screen->set_resolution_y(Settings::get().get_uint_from_keyword("settings.screen.resolution_y"));
+
+    // bind all commands to EngineClient
+    this->bind_commands();
+    this->engine_client->update_resolution();
 }
 
 /**
@@ -66,7 +81,7 @@ VisualizerImpl::VisualizerImpl():
  *
  * @return void
  */
-void VisualizerImpl::run(int argc, char* argv[]) {
+void Engine::run(int argc, char* argv[]) {
     if(argc > 2) {
         std::cerr << "Invalid number of arguments" << std::endl;
     }
@@ -85,7 +100,7 @@ void VisualizerImpl::run(int argc, char* argv[]) {
     double last_time = glfwGetTime();
 
     /* while the display runs, do at every frame */
-    while(!Display::get().is_closed()) {
+    while(!this->engine_client->is_closed()) {
 
         /**
          * @var current_time
@@ -109,7 +124,7 @@ void VisualizerImpl::run(int argc, char* argv[]) {
         if(current_time - last_time >= 1.0) {
 
             std::string sfps = boost::lexical_cast<std::string>(this->num_frames);
-            Display::get().set_window_title("Quadtree");
+            this->engine_client->set_window_title("Quadtree");
 
             // place in the function any commands that should be done every second
             this->update_second();
@@ -137,59 +152,6 @@ void VisualizerImpl::run(int argc, char* argv[]) {
 }
 
 /**
- * @fn handle_key_down
- * @brief Handles keyboard input
- *
- * Takes key presses as input and adjusts the game state accordingly.
- *
- * @param key the keyboard key
- * @param scancode the scancode
- * @param action the keyboard action (key down, key release)
- * @param mods
- *
- * @return void
- */
-void VisualizerImpl::handle_key_down(int key, int scancode, int action, int mods) {
-    if(key == 'Q'  && mods & GLFW_MOD_CONTROL
-                   && mods & GLFW_MOD_SHIFT
-                   && mods & GLFW_MOD_ALT
-                   && action == GLFW_RELEASE) {
-        glfwSetWindowShouldClose(Display::get().get_window_ptr(), GL_TRUE);
-    } else {
-        // parse keys to the game engine
-    }
-
-}
-
-/**
- * @fn handle_mouse_key_down
- * @brief Handles mouse input
- *
- * Takes key presses as input and adjusts the game state accordingly.
- *
- * @param button the mouse button
- * @param action the mouse action
- * @param mods
- *
- * @return void
- */
-void VisualizerImpl::handle_mouse_key_down(int button, int action, int mods) {
-
-}
-
-void VisualizerImpl::handle_mouse_cursor(double xpos, double ypos) {
-    Mouse::get().set_cursor(xpos, ypos);
-}
-
-void VisualizerImpl::handle_scroll(double xoffset, double yoffset) {
-
-}
-
-void VisualizerImpl::handle_char_callback(unsigned int key) {
-
-}
-
-/**
  * @fn update method
  * @brief Handles time integration
  *
@@ -197,11 +159,11 @@ void VisualizerImpl::handle_char_callback(unsigned int key) {
  *
  * @param dt Time integration constant
  */
-void VisualizerImpl::update(double dt) {
+void Engine::update(double dt) {
 
 }
 
-void VisualizerImpl::update_second() {
+void Engine::update_second() {
 
 }
 
@@ -211,20 +173,20 @@ void VisualizerImpl::update_second() {
  * Activates all draw classes and binds the frame buffer for the MSAA
  *
  */
-void VisualizerImpl::pre_draw() {
-    Screen::get().set_focus(glfwGetWindowAttrib(Display::get().get_window_ptr(), GLFW_FOCUSED));
-    Display::get().open_frame();   /* start new frame */
+void Engine::pre_draw() {
+    this->screen->set_focus(glfwGetWindowAttrib(this->engine_client->get_window_ptr(), GLFW_FOCUSED));
+    this->engine_client->open_frame();   /* start new frame */
 
     // first create a texture map
     Light::get().update();
 
     // then perform the normal rendering in the PostProcessor texture
-    PostProcessor::get().bind_frame_buffer();
+    this->post_processor->bind_frame_buffer();
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glEnable(GL_DEPTH_TEST);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glViewport(0, 0, Screen::get().get_resolution_x(), Screen::get().get_resolution_y());
-    Camera::get().update();
+    glViewport(0, 0, this->screen->get_resolution_x(), this->screen->get_resolution_y());
+    this->camera->update();
 }
 
 /**
@@ -233,8 +195,8 @@ void VisualizerImpl::pre_draw() {
  * Draw all sprites on the screen
  *
  */
-void VisualizerImpl::draw() {
-    FontWriter::get().write_text(0, 50.f, 50.f, 0.f, glm::vec3(1,1,1), "Quadtree");
+void Engine::draw() {
+    this->font_writer->write_text(0, 50.f, 50.f, 0.f, glm::vec3(1,1,1), "Quadtree");
 }
 
 /**
@@ -243,12 +205,26 @@ void VisualizerImpl::draw() {
  * Unbind frame buffer, render MSAA and draw the GUI
  *
  */
-void VisualizerImpl::post_draw() {
-    PostProcessor::get().unbind_frame_buffer();
+void Engine::post_draw() {
+    this->post_processor->unbind_frame_buffer();
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
-    glViewport(0, 0, Screen::get().get_width(), Screen::get().get_height());
-    PostProcessor::get().draw();
+    glViewport(0, 0, this->screen->get_width(), this->screen->get_height());
+    this->post_processor->draw();
 
-    Display::get().close_frame();
+    this->engine_client->close_frame();
+}
+
+void Engine::bind_commands() {
+    if(!this->screen) {
+        throw std::logic_error("Illegal bind command found, you have to initialize screen first.");
+    }
+    if(!this->post_processor) {
+        throw std::logic_error("Illegal bind command found, you have to initialize post_processor first.");
+    }
+    if(!this->camera) {
+        throw std::logic_error("Illegal bind command found, you have to initialize camera first.");
+    }
+
+    this->engine_client->bind_command_on_resize(new CommandOnResize(this->screen, this->post_processor, this->camera));
 }

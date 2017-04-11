@@ -26,6 +26,7 @@
 #include <iostream>
 #include <vector>
 #include <memory>
+#include <boost/noncopyable.hpp>
 
 #include "core/screen.h"
 #include "core/shader.h"
@@ -35,12 +36,12 @@
 #define POSTPROCESSOR_TEXTURE_SLOT 2
 
 /**
- * @class PostProcessorImpl class
+ * @class PostProcessor class
  *
  * @brief class handling the post_processor
  *
  */
-class PostProcessorImpl {
+class PostProcessor : private boost::noncopyable {
 private:
     GLuint frame_buffer_msaa;         //!< OpenGL reference to multi sampling frame buffer object
     GLuint frame_buffer_p;            //!< OpenGL reference to primary frame buffer object
@@ -76,13 +77,15 @@ private:
 
     const unsigned int texture_slot;                 //!< texture slot where textures are stored for this class
 
+    std::shared_ptr<Screen> screen;
+
 public:
     /**
      * @brief       post_processor constructor
      *
      * @return      post_processor instance
      */
-    PostProcessorImpl();
+    PostProcessor(const std::shared_ptr<Screen>& _screen);
 
     static const unsigned int FILTER_BLUR = 1 << 0;
     static const unsigned int FILTER_INVERT = 1 << 1;
@@ -128,7 +131,7 @@ public:
     /**
      * @brief      class destructor
      */
-    ~PostProcessorImpl();
+    ~PostProcessor();
 
 private:
     /**
@@ -190,7 +193,5 @@ private:
 
     void load_mesh();
 };
-
-typedef SingletonHolder<PostProcessorImpl> PostProcessor;
 
 #endif // _POST_PROCESSOR_H

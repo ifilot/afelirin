@@ -30,15 +30,16 @@
 #include <glm/gtx/quaternion.hpp>
 #include <iostream>
 #include <algorithm>
+#include <boost/noncopyable.hpp>
 
 #include "util/singleton_holder.h"
 #include "core/screen.h"
 
 /**
- * @class CameraImpl class
+ * @class Camera class
  * @brief class handling the camera
  */
-class CameraImpl {
+class Camera : private boost::noncopyable {
 private:
     glm::mat4 projection;               //!< perspective matrix
     glm::mat4 view;                     //!< view matrix
@@ -48,7 +49,7 @@ private:
     float aspect_ratio;                     //!< aspect ratio of the window
 
 public:
-    CameraImpl();
+    Camera();
 
     //*************************
     // GETTERS
@@ -129,7 +130,5 @@ public:
     void set_camera_position(const glm::vec3& _position, const glm::vec3& _up);
 
 };
-
-typedef SingletonHolder<CameraImpl> Camera;
 
 #endif // _CAMERA_H

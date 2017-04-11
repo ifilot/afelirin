@@ -30,24 +30,24 @@
 #include "core/screen.h"
 #include "core/shader.h"
 
-#include "util/singleton_holder.h"
-
 /**
- * @class MouseImpl class
+ * @class Mouse class
  *
  * @brief class handling mouse actions such as raycasting
  *
  */
-class MouseImpl {
+class Mouse {
 private:
     glm::vec2 cur_pos;                    //!< current cursor position
     glm::vec2 cur_pos_sw;                 //!< current cursor position with origin in SW position
+
+    std::shared_ptr<Screen> screen;
 
 public:
     /**
      * @brief       mouse constructor
      */
-    MouseImpl();
+    Mouse(const std::shared_ptr<Screen>& _screen);
 
     /*
      * @brief Draw action so the mouse
@@ -72,12 +72,10 @@ public:
         this->cur_pos[0] = (float)xpos;
         this->cur_pos[1] = (float)ypos;
         this->cur_pos_sw[0] = (float)xpos;
-        this->cur_pos_sw[1] = (float)Screen::get().get_height() - (float)ypos;
+        this->cur_pos_sw[1] = (float)this->screen->get_height() - (float)ypos;
     }
 
 private:
 };
-
-typedef SingletonHolder<MouseImpl> Mouse;
 
 #endif //_MOUSE_H

@@ -1,5 +1,5 @@
 /**************************************************************************
- *   display.cpp  --  This file is part of AFELIRIN.                      *
+ *   engine_client.cpp  --  This file is part of AFELIRIN.                *
  *                                                                        *
  *   Copyright (C) 2016, Ivo Filot                                        *
  *                                                                        *
@@ -19,16 +19,16 @@
  *                                                                        *
  **************************************************************************/
 
-#include "display.h"
+#include "engine_client.h"
 
 /**
- * @brief DisplayImpl constructor
+ * @brief EngineClient constructor
  *
  * Initializes the GLFW library, constructs a window and put it into context.
  * Callbacks are set-up and the GLEW library is initialized.
  *
  */
-DisplayImpl::DisplayImpl() {
+EngineClient::EngineClient() {
     // set the error callback
     glfwSetErrorCallback(error_callback);
 
@@ -91,6 +91,9 @@ DisplayImpl::DisplayImpl() {
     // set character callback
     glfwSetCharCallback(this->m_window, this->char_callback);
 
+    // set user pointer
+    glfwSetWindowUserPointer(this->m_window, (void*)this);
+
     // initialize GLEW
     glewExperimental = GL_TRUE;
     if (glewInit() != GLEW_OK) {
@@ -111,13 +114,6 @@ DisplayImpl::DisplayImpl() {
     // configure camera dimensions
     int width, height;
     glfwGetWindowSize(this->m_window, &width, &height);
-    Screen::get().set_width(width);
-    Screen::get().set_height(height);
-    Screen::get().set_resolution_x(Settings::get().get_uint_from_keyword("settings.screen.resolution_x"));
-    Screen::get().set_resolution_y(Settings::get().get_uint_from_keyword("settings.screen.resolution_y"));
-    Camera::get().set_aspect_ratio(Screen::get().get_aspect_ratio_resolution());
-    Camera::get().update();
-    PostProcessor::get().window_reshape();
 }
 
 /**
@@ -125,7 +121,7 @@ DisplayImpl::DisplayImpl() {
  *
  * Perform these instructions at the start of each frame
  */
-void DisplayImpl::open_frame() {
+void EngineClient::open_frame() {
 
 }
 
@@ -134,7 +130,7 @@ void DisplayImpl::open_frame() {
  *
  * Perform these instructions at the end of each frame
  */
-void DisplayImpl::close_frame() {
+void EngineClient::close_frame() {
     glfwSwapBuffers(this->m_window);
     glfwPollEvents();
 }
@@ -142,25 +138,18 @@ void DisplayImpl::close_frame() {
 /*
  * @brief Checks if the window is closed and if so, terminates the program
  */
-bool DisplayImpl::is_closed() {
+bool EngineClient::is_closed() {
     return glfwWindowShouldClose(this->m_window);
 }
 
 /**
- * @brief Display destructor
+ * @brief EngineClient destructor
  *
  * Destructs the display class and terminates the window and the glfw library
  */
-DisplayImpl::~DisplayImpl() {
+EngineClient::~EngineClient() {
     glfwDestroyWindow(this->m_window);
     glfwTerminate();
-}
-
- /*
- * @brief center the mouse pointer
- */
-void DisplayImpl::center_mouse_pointer() {
-    glfwSetCursorPos(this->m_window, (float)Screen::get().get_width() / 2.0f, (float)Screen::get().get_height() / 2.0f);
 }
 
 /*
@@ -168,20 +157,14 @@ void DisplayImpl::center_mouse_pointer() {
  *
  * @param window_name   the window name
  */
-void DisplayImpl::set_window_title(const std::string& window_name) {
+void EngineClient::set_window_title(const std::string& window_name) {
     glfwSetWindowTitle(this->m_window, window_name.c_str());
 }
 
-/*
- * @brief get the position of the cursor
- *
- * @return the position of the cursor
- */
-const glm::vec2 DisplayImpl::get_cursor_position() const {
-    double xpos, ypos;
-    glfwGetCursorPos(this->m_window, &xpos, &ypos);
-    return glm::vec2((float)xpos / (float)Screen::get().get_width(),
-                     (float)ypos / (float)Screen::get().get_height());
+void EngineClient::update_resolution() {
+    int width, height;
+    glfwGetWindowSize(this->m_window, &width, &height);
+    this->command_on_resize->execute(width, height);
 }
 
 /*
@@ -197,7 +180,7 @@ const glm::vec2 DisplayImpl::get_cursor_position() const {
  * @param description   error description
  *
  */
-void DisplayImpl::error_callback(int error, const char* description) {
+void EngineClient::error_callback(int error, const char* description) {
     std::cerr << description << std::endl;
 }
 
@@ -211,8 +194,8 @@ void DisplayImpl::error_callback(int error, const char* description) {
  * @param[in] mods
  *
  */
-void DisplayImpl::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-    Visualizer::get().handle_key_down(key, scancode, action, mods);
+void EngineClient::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+
 }
 
 /**
@@ -224,8 +207,8 @@ void DisplayImpl::key_callback(GLFWwindow* window, int key, int scancode, int ac
  * @param[in] mods
  *
  */
-void DisplayImpl::mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
-    Visualizer::get().handle_mouse_key_down(button, action, mods);
+void EngineClient::mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+
 }
 
 /**
@@ -236,8 +219,8 @@ void DisplayImpl::mouse_button_callback(GLFWwindow* window, int button, int acti
  * @param[in] yoffset  scroll wheel offset in y direction
  *
  */
-void DisplayImpl::scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
-    Visualizer::get().handle_scroll(xoffset, yoffset);
+void EngineClient::scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
+
 }
 
 /**
@@ -248,7 +231,7 @@ void DisplayImpl::scroll_callback(GLFWwindow* window, double xoffset, double yof
  * @param[in] paths     pathnames
  *
  */
-void DisplayImpl::drop_callback(GLFWwindow* window, int count, const char** paths) {
+void EngineClient::drop_callback(GLFWwindow* window, int count, const char** paths) {
 
 }
 
@@ -260,8 +243,8 @@ void DisplayImpl::drop_callback(GLFWwindow* window, int count, const char** path
  * @param[in] ypos      y position of the mouse cursor on screen
  *
  */
-void DisplayImpl::mouse_cursor_callback(GLFWwindow* window, double xpos, double ypos) {
-    Visualizer::get().handle_mouse_cursor(xpos, ypos);
+void EngineClient::mouse_cursor_callback(GLFWwindow* window, double xpos, double ypos) {
+
 }
 
 /**
@@ -271,22 +254,14 @@ void DisplayImpl::mouse_cursor_callback(GLFWwindow* window, double xpos, double 
  * @param[in] window    key to parse
  *
  */
-void DisplayImpl::char_callback(GLFWwindow* window, unsigned int key) {
-    Visualizer::get().handle_char_callback(key);
+void EngineClient::char_callback(GLFWwindow* window, unsigned int key) {
+
 }
 
 /**
  * @brief perform window resizing
  */
-void DisplayImpl::framebuffer_size_callback(GLFWwindow* window, int width, int height) {
-    // update screen settings
-    Screen::get().set_width(width);
-    Screen::get().set_height(height);
-
-    // update camera settings
-    Camera::get().set_aspect_ratio(Screen::get().get_aspect_ratio_resolution());
-    Camera::get().update();
-
-    // update post processor
-    PostProcessor::get().window_reshape();
+void EngineClient::framebuffer_size_callback(GLFWwindow* window, int width, int height) {
+    EngineClient* ec = reinterpret_cast<EngineClient*>(glfwGetWindowUserPointer(window));
+    ec->command_on_resize->execute(width, height);
 }

@@ -1,5 +1,5 @@
 /**************************************************************************
- *   display.h  --  This file is part of AFELIRIN.                        *
+ *   engine_client.h  --  This file is part of AFELIRIN.                  *
  *                                                                        *
  *   Copyright (C) 2016, Ivo Filot                                        *
  *                                                                        *
@@ -27,41 +27,45 @@
 #include <glm/glm.hpp>
 #include <cstdlib> // EXIT_FAILURE
 #include <iostream>
+#include <memory>
 #include <boost/format.hpp>
+#include <boost/noncopyable.hpp>
 
 #include "core/camera.h"
-#include "core/visualizer.h"
 #include "core/screen.h"
 #include "core/post_processor.h"
 #include "core/settings.h"
 
-#include "util/singleton_holder.h"
+#include "util/command.h"
 
 /**
- * @class DisplayImpl class
+ * @class EngineClient class
  *
  * @brief class handling the display
  *
  */
-class DisplayImpl {
+class EngineClient : private boost::noncopyable {
 private:
     GLFWwindow* m_window;       //!< pointer to the window
 
+    std::unique_ptr<CommandP2<int, int> > command_on_resize;
+    std::unique_ptr<CommandP0 > command_update_resolution;
+
 public:
     /**
-     * @brief DisplayImpl constructor
+     * @brief EngineClient constructor
      *
      * Initializes the GLFW library, constructs a window and put it into context.
      * Callbacks are set-up and the GLEW library is initialized.
      *
      */
-    DisplayImpl();
+    EngineClient();
 
     /**
-     * DisplayImpl destructor
+     * EngineClient destructor
      * Destructs the display class and terminates the window and the glfw library
      */
-    virtual ~DisplayImpl();
+    virtual ~EngineClient();
 
     /**
      * @brief close frame function
@@ -90,41 +94,17 @@ public:
     float get_aspect_ratio() const;
 
     /*
-     * @brief set width of the display
-     *
-     * @param width width of the display
-     */
-    void set_width(const unsigned int &width);
-
-    /*
-     * @brief set height of the display
-     *
-     * @param height height of the display
-     */
-    void set_height(const unsigned int &height);
-
-    /*
-     * @brief center the mouse pointer
-     */
-    void center_mouse_pointer();
-
-    /*
      * @brief center the mouse pointer
      *
      * @param window_name   the window name
      */
     void set_window_title(const std::string& window_name);
 
+    void update_resolution();
+
     inline GLFWwindow* get_window_ptr() {
         return this->m_window;
     }
-
-    /*
-     * @brief get the position of the cursor
-     *
-     * @return the position of the cursor
-     */
-    const glm::vec2 get_cursor_position() const;
 
     /**
      * @brief error callback function
@@ -174,8 +154,14 @@ public:
      *
      */
     static void char_callback(GLFWwindow* window, unsigned int key);
-};
 
-typedef SingletonHolder<DisplayImpl> Display;
+    //---------------------------------------------
+    // COMMAND SETTERS
+    //---------------------------------------------
+
+    inline void bind_command_on_resize(CommandP2<int, int>* _cmd) {
+        this->command_on_resize = std::unique_ptr<CommandP2<int, int> >(_cmd);
+    }
+};
 
 #endif // _DISPLAY_H

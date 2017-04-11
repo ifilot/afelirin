@@ -26,7 +26,7 @@
  *
  * @return      camera instance
  */
-CameraImpl::CameraImpl() {
+Camera::Camera() {
     this->position = glm::vec2(0.0f, 0.0f);
     this->update();
 }
@@ -36,7 +36,7 @@ CameraImpl::CameraImpl() {
  *
  * @return      void
  */
-void CameraImpl::update() {
+void Camera::update() {
     this->projection = glm::ortho(0.0f, 22.0f * this->aspect_ratio, 0.0f, 22.0f, -300.0f, 300.0f);
     this->view = glm::lookAt(
                     glm::vec3(this->position, 1.0),              // cam pos
@@ -50,7 +50,7 @@ void CameraImpl::update() {
  *
  * @return      void
  */
-void CameraImpl::translate(const glm::vec3& trans) {
+void Camera::translate(const glm::vec3& trans) {
     this->update();
 }
 
@@ -61,6 +61,6 @@ void CameraImpl::translate(const glm::vec3& trans) {
  * @param      up direction
  * @return     void
  */
-void CameraImpl::set_camera_position(const glm::vec3& _position, const glm::vec3& _up) {
+void Camera::set_camera_position(const glm::vec3& _position, const glm::vec3& _up) {
     this->update();
 }

@@ -27,6 +27,7 @@
 #include <list>
 #include <algorithm>
 #include <string>
+#include <stdexcept>
 
 #include "util/pngfuncs.h"
 
@@ -37,6 +38,7 @@
 #include <freetype2/ftoutln.h>
 #include <freetype2/fttrigon.h>
 #include <boost/lexical_cast.hpp>
+#include <boost/noncopyable.hpp>
 
 #include "util/singleton_holder.h"
 
@@ -50,7 +52,7 @@
 #define FONT_TEXTURE_SLOT 1
 
 /**
- * @class FontWriterImpl
+ * @class FontWriter
  *
  * @brief writes text to the screen
  *
@@ -67,7 +69,7 @@
  * http://www.valvesoftware.com/publications/2007/SIGGRAPH2007_AlphaTestedMagnification.pdf
  *
  */
-class FontWriterImpl {
+class FontWriter : private boost::noncopyable {
 private:
     /**
      * @struct Glyph
@@ -98,7 +100,7 @@ private:
             horizontal_advance(0) {}
     };
 
-    class CharacterAtlas {
+    class CharacterAtlas : private boost::noncopyable {
     private:
         static const unsigned int font_padding = 12;    //!< padding
         static const unsigned int base_font_size = 32;  //!< font size for texture generation
@@ -131,6 +133,8 @@ private:
         std::shared_ptr<Shader> shader;                 //!< shader for drawing the font
         const unsigned int texture_slot;                //!< fixed texture where fonts are stored
 
+        std::shared_ptr<Screen> screen;
+
     public:
         /*
          * @brief       CharacterAtlas constructor
@@ -140,11 +144,19 @@ private:
          * @paran[in]   width           width of the sdf
          * @paran[in]   edge            edge of the sdf
          * @param[in]   _shader         shared pointer to the Shader class
+         * @param[in]   _screen         shared pointer to the Screen class
          * @param[in]   _cstart         starting index of the font
          * @param[in]   _ccount         number of characters to load
          *
          */
-        CharacterAtlas(const std::string& _font_file, unsigned int _pt, float _width, float _edge, std::shared_ptr<Shader> _shader, unsigned int _cstart, unsigned int _ccount);
+        CharacterAtlas(const std::string& _font_file,
+                       unsigned int _pt,
+                       float _width,
+                       float _edge,
+                       const std::shared_ptr<Shader>& _shader,
+                       const std::shared_ptr<Screen>& _screen,
+                       unsigned int _cstart,
+                       unsigned int _ccount);
 
         /*
          * @brief       write a line of characters
@@ -172,16 +184,6 @@ private:
          * @brief Display the complete character map (font atlas) on the screen (used for debugging purposes)
          */
         void draw_charmap_on_screen();
-
-        /**
-         * @brief Copy constructor
-         */
-        CharacterAtlas(const FontWriterImpl::CharacterAtlas& other);
-
-        /**
-         * @brief Move constructor
-         */
-        CharacterAtlas(FontWriterImpl::CharacterAtlas&& other) noexcept;
 
         /**
          * @brief Destructor operator
@@ -222,10 +224,11 @@ private:
 
     const unsigned int texture_slot;                //!< fixed texture where fonts are stored
     std::shared_ptr<Shader> shader;                 //!< shared pointer of the Shader object
-    std::vector<CharacterAtlas> fonts;              //!< vector holding all CharacterAtlas objects
+    std::vector<std::unique_ptr<CharacterAtlas> > fonts;              //!< vector holding all CharacterAtlas objects
+    std::shared_ptr<Screen> screen;
 
 public:
-    FontWriterImpl();
+    FontWriter(const std::shared_ptr<Screen>& _screen);
 
     /**
      * @brief       add a font (Character Atlas) to the FontWriter class
@@ -284,7 +287,5 @@ public:
     void draw();
 
 };
-
-typedef SingletonHolder<FontWriterImpl> FontWriter;
 
 #endif // _FONT_WRITER

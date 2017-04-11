@@ -24,5 +24,8 @@
 /**
  * @brief       mouse constructor
  */
-MouseImpl::MouseImpl() {
+Mouse::Mouse(const std::shared_ptr<Screen>& _screen) :
+    screen(_screen)
+    {
+        // do something
 }

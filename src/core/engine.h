@@ -1,5 +1,5 @@
 /**************************************************************************
- *   visualizer.h  --  This file is part of AFELIRIN.                     *
+ *   engine.h  --  This file is part of AFELIRIN.                         *
  *                                                                        *
  *   Copyright (C) 2016, Ivo Filot                                        *
  *                                                                        *
@@ -23,8 +23,10 @@
 #define _VISUALIZER_H
 
 #include <boost/lexical_cast.hpp>
+#include <boost/noncopyable.hpp>
+#include <stdexcept>
 
-#include "core/display.h"
+#include "core/engine_client.h"
 #include "core/mouse.h"
 #include "core/shader.h"
 #include "core/screen.h"
@@ -32,13 +34,13 @@
 #include "core/light.h"
 #include "core/post_processor.h"
 
-#include "util/singleton_holder.h"
+#include "core/commands/engine/engine_commands.h"
 
 /**
- * @class VisualizerImpl class
+ * @class Engine class
  * @brief Initializes entities and handles time propagation.
  */
-class VisualizerImpl {
+class Engine : private boost::noncopyable {
 private:
     /**
      * @var accumulator
@@ -79,15 +81,21 @@ private:
 
     unsigned int num_frames;
 
+    std::unique_ptr<EngineClient> engine_client;
+    std::shared_ptr<PostProcessor> post_processor;
+    std::shared_ptr<Screen> screen;
+    std::shared_ptr<Camera> camera;
+    std::shared_ptr<FontWriter> font_writer;
+
 public:
     /**
-     * @fn VisualizerImpl method
-     * @brief VisualizerImpl constructor method
+     * @fn Engine method
+     * @brief Engine constructor method
      *
      * Loads up the display and initializes all entities.
      *
      */
-    VisualizerImpl();
+    Engine();
 
     /**
      * @fn run method
@@ -99,57 +107,6 @@ public:
      * @return void
      */
     void run(int argc, char* argv[]);
-
-    /**
-     * @fn handle_key_down
-     * @brief Handles keyboard input
-     *
-     * Takes key presses as input and adjusts the game state accordingly.
-     *
-     * @param key the keyboard key
-     * @param scancode the scancode
-     * @param action the keyboard action (key down, key release)
-     * @param mods
-     * @return void
-     */
-    void handle_key_down(int key, int scancode, int action, int mods);
-
-    /**
-     * @fn handle_key_down
-     * @brief Handles keyboard input
-     *
-     * Takes key presses as input and adjusts the game state accordingly.
-     *
-     * @param button the mouse button
-     * @param action the mouse action
-     * @param mods
-     * @return void
-     */
-    void handle_mouse_key_down(int button, int action, int mods);
-
-    /**
-     * @fn handle_scroll
-     * @brief handles mouse scrolls
-     *
-     * @return void
-     */
-    void handle_scroll(double xoffset, double yoffset);
-
-    /**
-     * @fn handle_scroll
-     * @brief handles mouse scrolls
-     *
-     * @return void
-     */
-    void handle_mouse_cursor(double xpos, double ypos);
-
-    /**
-     * @fn handle character callback
-     * @brief handles mouse scrolls
-     *
-     * @return void
-     */
-    void handle_char_callback(unsigned int key);
 
 private:
     /**
@@ -172,8 +129,8 @@ private:
     void draw();
 
     void post_draw();
-};
 
-typedef SingletonHolder<VisualizerImpl> Visualizer;
+    void bind_commands();
+};
 
 #endif // _VISUALIZER_H

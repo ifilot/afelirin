@@ -25,16 +25,17 @@
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
+#include <boost/noncopyable.hpp>
 
 #include "util/singleton_holder.h"
 
 /**
- * @class ScreenImpl class
+ * @class Screen class
  *
  * @brief class handling screen settings
  *
  */
-class ScreenImpl {
+class Screen : private boost::noncopyable {
 private:
     unsigned int width;       //!< width of the screen
     unsigned int height;      //!< height of the screen
@@ -45,7 +46,7 @@ private:
     bool flag_focus;          //!< whether screen is in focus
 
 public:
-    ScreenImpl();
+    Screen();
 
     inline unsigned int get_width() const {
         return this->width;
@@ -95,7 +96,5 @@ public:
         this->flag_focus = focus;
     }
 };
-
-typedef SingletonHolder<ScreenImpl> Screen;
 
 #endif //_SCREEN_H

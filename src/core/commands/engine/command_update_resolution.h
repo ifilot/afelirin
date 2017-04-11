@@ -1,7 +1,7 @@
 /**************************************************************************
- *   screen.cpp  --  This file is part of AFELIRIN.                       *
+ *   command_update_resolution.h  --  This file is part of AFELIRIN.      *
  *                                                                        *
- *   Copyright (C) 2016, Ivo Filot                                        *
+ *   Copyright (C) 2017, Ivo Filot                                        *
  *                                                                        *
  *   AFELIRIN is free software:                                           *
  *   you can redistribute it and/or modify it under the terms of the      *
@@ -19,12 +19,37 @@
  *                                                                        *
  **************************************************************************/
 
-#include "screen.h"
+#ifndef _COMMAND_ON_RESIZE_H
+#define _COMMAND_ON_RESIZE_H
 
-Screen::Screen() {
-    this->width = 800;
-    this->height = 600;
+#include <memory>
 
-    this->resolution_x = 640;
-    this->resolution_y = 480;
-}
+class CommandUpdateResolution : public CommandP2<int, int> {
+private:
+    std::shared_ptr<Screen> screen;
+    std::shared_ptr<PostProcessor> post_processor;
+    std::shared_ptr<Camera> camera;
+
+public:
+    CommandUpdateResolution(const std::shared_ptr<Screen> _screen,
+                    const std::shared_ptr<PostProcessor> _postprocessor,
+                    const std::shared_ptr<Camera> _camera) :
+    screen(_screen),
+    post_processor(_postprocessor),
+    camera(_camera) { }
+
+    void execute(int width, int height) {
+        // // update screen settings
+        this->screen->set_width(width);
+        this->screen->set_height(height);
+
+        // update camera settings
+        this->camera->set_aspect_ratio(this->screen->get_aspect_ratio_resolution());
+        this->camera->update();
+
+        // update post processor
+        this->post_processor->window_reshape();
+    }
+};
+
+#endif // _COMMAND_ON_RESIZE_H

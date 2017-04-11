@@ -26,7 +26,10 @@
  *
  * @return      post_processor instance
  */
-PostProcessorImpl::PostProcessorImpl() : texture_slot(POSTPROCESSOR_TEXTURE_SLOT) {
+PostProcessor::PostProcessor(const std::shared_ptr<Screen>& _screen) :
+        texture_slot(POSTPROCESSOR_TEXTURE_SLOT),
+        screen(_screen)
+    {
     this->msaa = 4;
     this->filter_flags = 0x00000000;
 
@@ -49,13 +52,13 @@ PostProcessorImpl::PostProcessorImpl() : texture_slot(POSTPROCESSOR_TEXTURE_SLOT
     // set blur shaders
     const float blur_radius = 2.0f;
     this->create_shader(&this->shader_blur_h, "assets/filters/blur");
-    const float width = (float)Screen::get().get_resolution_x();
+    const float width = (float)this->screen->get_resolution_x();
     this->shader_blur_h->set_uniform("resolution", &width);
     this->shader_blur_h->set_uniform("radius", &blur_radius);
     this->shader_blur_h->set_uniform("dir", &glm::vec2(1,0)[0]);
 
     this->create_shader(&this->shader_blur_v, "assets/filters/blur");
-    const float height = (float)Screen::get().get_resolution_y();
+    const float height = (float)this->screen->get_resolution_y();
     this->shader_blur_v->set_uniform("resolution", &height);
     this->shader_blur_v->set_uniform("radius", &blur_radius);
     this->shader_blur_v->set_uniform("dir", &glm::vec2(0,1)[0]);
@@ -67,11 +70,11 @@ PostProcessorImpl::PostProcessorImpl() : texture_slot(POSTPROCESSOR_TEXTURE_SLOT
 /**
  * @brief      bind the msaa frame buffer
  */
-void PostProcessorImpl::bind_frame_buffer() {
+void PostProcessor::bind_frame_buffer() {
     glBindFramebuffer(GL_FRAMEBUFFER, this->frame_buffer_msaa);
     glEnable(GL_MULTISAMPLE);
     GLenum status;
-    if ((status = glCheckFramebufferStatus(GL_FRAMEBUFFER)) != GL_FRAMEBUFFER_COMPLETE && (Screen::get().get_resolution_x() != 0 || Screen::get().get_resolution_y() != 0)) {
+    if ((status = glCheckFramebufferStatus(GL_FRAMEBUFFER)) != GL_FRAMEBUFFER_COMPLETE && (this->screen->get_resolution_x() != 0 || this->screen->get_resolution_y() != 0)) {
         std::cerr << "glCheckFramebufferStatus: error " << status << std::endl;
         std::cerr << __FILE__ << "(" << __LINE__ << ")" << std::endl;
     }
@@ -88,14 +91,14 @@ void PostProcessorImpl::bind_frame_buffer() {
 /**
  * @brief      unbind all frame buffers
  */
-void PostProcessorImpl::unbind_frame_buffer() {
+void PostProcessor::unbind_frame_buffer() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 /**
  * @brief      draw the result of the post processing to the screen
  */
-void PostProcessorImpl::draw() {
+void PostProcessor::draw() {
     // resample the buffer from msaa to regular
     this->resample_buffer();
 
@@ -109,24 +112,24 @@ void PostProcessorImpl::draw() {
 /**
  * @brief      updates all render buffers and textures
  */
-void PostProcessorImpl::window_reshape() {
+void PostProcessor::window_reshape() {
     this->set_msaa_buffer(this->texture_msaa, this->depth_msaa);
     this->set_buffer(this->texture_p, this->depth_p);
     this->set_buffer(this->texture_s, this->depth_s);
 
     this->shader_blur_h->link_shader();
-    const float width = Screen::get().get_resolution_x() != 0 ? (float)Screen::get().get_resolution_x() : 1.0f;
+    const float width = this->screen->get_resolution_x() != 0 ? (float)this->screen->get_resolution_x() : 1.0f;
     this->shader_blur_h->set_uniform("resolution", &width);
 
     this->shader_blur_h->link_shader();
-	const float height = Screen::get().get_resolution_y() != 0 ? (float)Screen::get().get_resolution_y() : 1.0f;
+	const float height = this->screen->get_resolution_y() != 0 ? (float)this->screen->get_resolution_y() : 1.0f;
     this->shader_blur_v->set_uniform("resolution", &height);
 }
 
 /**
  * @brief      class destructor
  */
-PostProcessorImpl::~PostProcessorImpl() {
+PostProcessor::~PostProcessor() {
     glDeleteRenderbuffers(1, &this->depth_p);
     glDeleteTextures(1, &this->texture_p);
     glDeleteFramebuffers(1, &this->frame_buffer_p);
@@ -146,12 +149,12 @@ PostProcessorImpl::~PostProcessorImpl() {
 /**
  * @brief      blit the content of the msaa fbo to the primary fbo
  */
-void PostProcessorImpl::resample_buffer() {
+void PostProcessor::resample_buffer() {
     glBindFramebuffer(GL_READ_FRAMEBUFFER, this->frame_buffer_msaa);
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, this->frame_buffer_p);
 
-    const unsigned int width = Screen::get().get_resolution_x() != 0 ? Screen::get().get_resolution_x() : 1;
-    const unsigned int height = Screen::get().get_resolution_y() != 0 ? Screen::get().get_resolution_y() : 1;
+    const unsigned int width = this->screen->get_resolution_x() != 0 ? this->screen->get_resolution_x() : 1;
+    const unsigned int height = this->screen->get_resolution_y() != 0 ? this->screen->get_resolution_y() : 1;
 
     glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -160,7 +163,7 @@ void PostProcessorImpl::resample_buffer() {
 /**
  * @brief      perform series of filter passes on the active texture
  */
-void PostProcessorImpl::apply_filters() {
+void PostProcessor::apply_filters() {
     if(this->filter_flags & FILTER_BLUR) {
         this->blur();
     }
@@ -175,7 +178,7 @@ void PostProcessorImpl::apply_filters() {
  *
  * @param[in]   pointer to the Shader class containing the filter
  */
-void PostProcessorImpl::pass(const std::unique_ptr<Shader>& shader) {
+void PostProcessor::pass(const std::unique_ptr<Shader>& shader) {
     //set buffer (draw to passive buffer)
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, this->frame_buffer_passive);
 
@@ -192,7 +195,7 @@ void PostProcessorImpl::pass(const std::unique_ptr<Shader>& shader) {
 /**
  * @brief      perform blurring
  */
-void PostProcessorImpl::blur() {
+void PostProcessor::blur() {
     this->pass(this->shader_blur_h);
     this->pass(this->shader_blur_v);
 }
@@ -200,7 +203,7 @@ void PostProcessorImpl::blur() {
 /**
  * @brief      swap passive and active buffers
  */
-void PostProcessorImpl::swap_active_buffer() {
+void PostProcessor::swap_active_buffer() {
     if(this->frame_buffer_active == this->frame_buffer_p) {
 
         this->frame_buffer_active = this->frame_buffer_s;
@@ -226,7 +229,7 @@ void PostProcessorImpl::swap_active_buffer() {
 /**
  * @brief      perform a texture render (used for the filters)
  */
-void PostProcessorImpl::render(const std::unique_ptr<Shader>& shader) {
+void PostProcessor::render(const std::unique_ptr<Shader>& shader) {
     glClearColor(0.0, 0.0, 0.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -239,14 +242,14 @@ void PostProcessorImpl::render(const std::unique_ptr<Shader>& shader) {
     float sx, sy;
 
     // try letterbox mode
-    float scale = (float)Screen::get().get_width() / (float)Screen::get().get_resolution_x();
-    unsigned int height = scale * (float)Screen::get().get_resolution_y();
+    float scale = (float)this->screen->get_width() / (float)this->screen->get_resolution_x();
+    unsigned int height = scale * (float)this->screen->get_resolution_y();
 
-    if(height < Screen::get().get_height()) { // use letterbox mode
+    if(height < this->screen->get_height()) { // use letterbox mode
         sx = 1.0f;
-        sy = Screen::get().get_aspect_ratio_screen() / Screen::get().get_aspect_ratio_resolution();
+        sy = this->screen->get_aspect_ratio_screen() / this->screen->get_aspect_ratio_resolution();
     } else {
-        sx = Screen::get().get_aspect_ratio_resolution() / Screen::get().get_aspect_ratio_screen();
+        sx = this->screen->get_aspect_ratio_resolution() / this->screen->get_aspect_ratio_screen();
         sy = 1.0f;
     }
 
@@ -267,9 +270,9 @@ void PostProcessorImpl::render(const std::unique_ptr<Shader>& shader) {
 /**
  * @brief      create the multisampling fbo
  */
-void PostProcessorImpl::create_msaa_buffer(GLuint* render_buffer, GLuint* texture, GLuint* frame_buffer) {
-    const unsigned int width = Screen::get().get_resolution_x();
-    const unsigned int height = Screen::get().get_resolution_y();
+void PostProcessor::create_msaa_buffer(GLuint* render_buffer, GLuint* texture, GLuint* frame_buffer) {
+    const unsigned int width = this->screen->get_resolution_x();
+    const unsigned int height = this->screen->get_resolution_y();
 
 	glGenRenderbuffers(1, render_buffer);
     glBindRenderbuffer(GL_RENDERBUFFER, *render_buffer);
@@ -296,9 +299,9 @@ void PostProcessorImpl::create_msaa_buffer(GLuint* render_buffer, GLuint* textur
 /**
  * @brief      create the renderbuffer objects
  */
-void PostProcessorImpl::create_buffer(GLuint* render_buffer, GLuint* texture, GLuint* frame_buffer) {
-    const unsigned int width = Screen::get().get_resolution_x();
-    const unsigned int height = Screen::get().get_resolution_y();
+void PostProcessor::create_buffer(GLuint* render_buffer, GLuint* texture, GLuint* frame_buffer) {
+    const unsigned int width = this->screen->get_resolution_x();
+    const unsigned int height = this->screen->get_resolution_y();
 
     glGenRenderbuffers(1, render_buffer);
     glBindRenderbuffer(GL_RENDERBUFFER, *render_buffer);
@@ -333,24 +336,24 @@ void PostProcessorImpl::create_buffer(GLuint* render_buffer, GLuint* texture, GL
 /**
  * @brief      set width and height to msaa buffers
  */
-void PostProcessorImpl::set_msaa_buffer(GLuint texture, GLuint frame_buffer) {
+void PostProcessor::set_msaa_buffer(GLuint texture, GLuint frame_buffer) {
     // resize regular buffer
     glActiveTexture(GL_TEXTURE2);
     glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, texture);
-    glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, this->msaa, GL_RGBA, Screen::get().get_resolution_x(), Screen::get().get_resolution_y(), GL_TRUE);
+    glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, this->msaa, GL_RGBA, this->screen->get_resolution_x(), this->screen->get_resolution_y(), GL_TRUE);
     glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
 
     glBindRenderbuffer(GL_RENDERBUFFER, frame_buffer);
-    glRenderbufferStorageMultisample(GL_RENDERBUFFER, this->msaa, GL_DEPTH24_STENCIL8, Screen::get().get_resolution_x(), Screen::get().get_resolution_y());
+    glRenderbufferStorageMultisample(GL_RENDERBUFFER, this->msaa, GL_DEPTH24_STENCIL8, this->screen->get_resolution_x(), this->screen->get_resolution_y());
     glBindRenderbuffer(GL_RENDERBUFFER, 0);
 }
 
 /**
  * @brief      set with and height to regular buffers
  */
-void PostProcessorImpl::set_buffer(GLuint texture, GLuint frame_buffer) {
-    const unsigned int width = Screen::get().get_resolution_x();
-    const unsigned int height = Screen::get().get_resolution_y();
+void PostProcessor::set_buffer(GLuint texture, GLuint frame_buffer) {
+    const unsigned int width = this->screen->get_resolution_x();
+    const unsigned int height = this->screen->get_resolution_y();
 
     glActiveTexture(GL_TEXTURE2);
     glBindTexture(GL_TEXTURE_2D, texture);
@@ -358,14 +361,14 @@ void PostProcessorImpl::set_buffer(GLuint texture, GLuint frame_buffer) {
     glBindTexture(GL_TEXTURE_2D, 0);
 
     glBindRenderbuffer(GL_RENDERBUFFER, frame_buffer);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, Screen::get().get_resolution_x(), Screen::get().get_resolution_y());
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, this->screen->get_resolution_x(), this->screen->get_resolution_y());
     glBindRenderbuffer(GL_RENDERBUFFER, 0);
 }
 
 /**
  * @brief      create a shader for filtering
  */
-void PostProcessorImpl::create_shader(std::unique_ptr<Shader>* shader, const std::string& filename) {
+void PostProcessor::create_shader(std::unique_ptr<Shader>* shader, const std::string& filename) {
     *shader = std::unique_ptr<Shader>(new Shader(filename));
     shader->get()->add_attribute(ShaderAttribute::POSITION, "position");
     shader->get()->add_uniform(ShaderUniform::TEXTURE, "text", 1);
@@ -382,7 +385,7 @@ void PostProcessorImpl::create_shader(std::unique_ptr<Shader>* shader, const std
     glBindVertexArray(0);
 }
 
-void PostProcessorImpl::load_mesh() {
+void PostProcessor::load_mesh() {
     std::vector<glm::vec3> positions;
     std::vector<unsigned int> indices;
 
