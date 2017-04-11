@@ -37,6 +37,12 @@
  * @brief Holds variable that is the same for every vertex in the shader
  */
 class ShaderUniform {
+private:
+    unsigned int type;                           //<! type of the uniform
+    std::string name;                            //<! name of the uniform
+    unsigned int size;                           //<! size of the uniform
+    GLuint uniform_id;                           //<! id of the uniform
+
 public:
     /**
      * @brief       default constructor
@@ -101,19 +107,13 @@ public:
         VEC3,
         VEC2,
         TEXTURE,
-        UINT,
+        INT,
         FLOAT,
         FRAME_MATRIX,
         OFFSET_MATRIX,
 
         NUM_VAR_TYPES
     };
-
-private:
-    unsigned int type;                           //<! type of the uniform
-    std::string name;                            //<! name of the uniform
-    unsigned int size;                           //<! size of the uniform
-    GLuint uniform_id;                           //<! id of the uniform
 };
 
 /**
@@ -172,29 +172,29 @@ private:
     void operator=(const Shader& other) = delete;   //!< copy constructor
 
     GLuint m_program;                               //!< reference pointer to the program
-    GLuint m_shaders[NUM_SHADERS];                  //!< reference array to the shaders
+    GLuint m_shaders[3];                            //!< reference array to the shaders
 
     std::vector<ShaderAttribute> shader_attributes; //!< vector holding shader attributes
 
     std::unordered_map<std::string, ShaderUniform> shader_uniforms; //!< unordered map holding the uniforms
 
-    //std::vector<ShaderUniform> shader_uniforms;     //!< vector holding shader uniforms
-    //std::vector<GLuint> m_uniforms;                 //!< reference array to the uniforms
-
     bool flag_loaded;                               //!< flag whether this shader is loaded
     GLuint texture_id;                              //!< id of the texture
     std::string filename;                           //!< absolute path of the file that contains this shader program
+    bool has_geom;                                  //!< flag whether geometry shader is present
 
 public:
     Shader(const std::string& _filename);
 
-    void add_uniform(unsigned int type, const std::string& name, unsigned int size);
+    void add_uniform(unsigned int type, const std::string& name, unsigned int size = 1);
 
     void add_attribute(unsigned int type, const std::string& name);
 
     void bind_uniforms_and_attributes();
 
     void set_uniform(const std::string& name, const void* val);
+
+    void set_uniform(const std::string& name, float val);
 
     inline long unsigned int get_nr_attributes() const {
         return this->shader_attributes.size();

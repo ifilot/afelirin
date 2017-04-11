@@ -70,8 +70,16 @@ Shader::Shader(const std::string& _filename) {
     // set fragment shader
     this->m_shaders[1] = create_shader(load_shader(this->filename + ".fs"), GL_FRAGMENT_SHADER);
 
+    // set geometry shader
+    if(boost::filesystem::exists(this->filename + ".geom")) {
+        this->m_shaders[2] = create_shader(load_shader(this->filename + ".geom"), GL_GEOMETRY_SHADER);
+        this->has_geom = true;
+    } else {
+        this->has_geom = false;
+    }
+
     // attach all shaders
-    for(unsigned int i = 0; i < NUM_SHADERS; i++) {
+    for(unsigned int i = 0; i < NUM_SHADERS + (has_geom ? 1 : 0); i++) {
         glAttachShader(this->m_program, m_shaders[i]);
     }
 
@@ -109,7 +117,9 @@ void Shader::set_uniform(const std::string& name, const void* val) {
     // get uniform location in program
     const GLint id = glGetUniformLocation(this->m_program, name.c_str());
     if(id == -1) {
-        std::cerr << name << " does not correspond with a known uniform in this program." << std::endl;
+        std::cerr << name << " does not correspond with a known uniform in this program ("
+                  << this->filename << ")."
+                  << std::endl;
         exit(-1);
     }
 
@@ -138,6 +148,9 @@ void Shader::set_uniform(const std::string& name, const void* val) {
         case  ShaderUniform::FLOAT:
             glUniform1f(id, *(const float*)(val));
         break;
+        case  ShaderUniform::INT:
+            glUniform1i(id, *(const int*)(val));
+        break;
         case  ShaderUniform::FRAME_MATRIX:
             glUniformMatrix4fv(id, uni.get_size(), GL_FALSE, (const GLfloat*)val);
         break;
@@ -146,6 +159,36 @@ void Shader::set_uniform(const std::string& name, const void* val) {
         break;
         default:
             // do nothing
+        break;
+    }
+}
+
+void Shader::set_uniform(const std::string& name, float val) {
+    // get uniform location in program
+    const GLint id = glGetUniformLocation(this->m_program, name.c_str());
+    if(id == -1) {
+        std::cerr << name << " does not correspond with a known uniform in this program ("
+                  << this->filename << ")."
+                  << std::endl;
+        exit(-1);
+    }
+
+    const ShaderUniform& uni = this->get_uniform(name);
+
+    // get uniform load function based on type
+    switch(uni.get_type()) {
+        case  ShaderUniform::FLOAT:
+            glUniform1f(id, val);
+        break;
+        case  ShaderUniform::TEXTURE:
+            glUniform1i(id, (int)val);
+        break;
+        case  ShaderUniform::INT:
+            glUniform1i(id, (int)val);
+        break;
+        default:
+            std::cerr << "Type FLOAT may not be used for uniform " << name << std::endl;
+            exit(-1);
         break;
     }
 }
@@ -167,7 +210,7 @@ const ShaderUniform& Shader::get_uniform(const std::string& name) const {
  */
 Shader::~Shader() {
     // detach and delete the allocated shaders
-    for(unsigned int i = 0; i < NUM_SHADERS; i++) {
+    for(unsigned int i = 0; i < NUM_SHADERS + (has_geom ? 1 : 0); i++) {
         glDetachShader(this->m_program, m_shaders[i]);
         glDeleteShader(m_shaders[i]);
     }
