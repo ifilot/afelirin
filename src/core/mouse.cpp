@@ -24,5 +24,5 @@
 /**
  * @brief       mouse constructor
  */
-Mouse::Mouse() {
+MouseImpl::MouseImpl() {
 }

@@ -34,23 +34,20 @@
 #include <vorbis/codec.h>
 #include <vorbis/vorbisfile.h>
 
+#include "util/singleton_holder.h"
+
 /**
- * @class Synthesizer class
+ * @class SynthesizerImpl class
  * @brief class that manages sound play
  */
-class Synthesizer {
+class SynthesizerImpl {
 private:
     ALCdevice* device;              //!< reference to sound device
     std::vector<ALuint> buffers;    //!< vector holding sound buffers
     std::vector<ALuint> sources;    //!< vector holding sound sources
 
 public:
-    static Synthesizer& get() {
-        static Synthesizer synthesizer_instance;
-        return synthesizer_instance;
-    }
-
-    static void kill_synthesizer();
+    SynthesizerImpl();
 
     inline void play(unsigned int sound_id) {
         alSourcePlay(this->sources[sound_id]);
@@ -60,11 +57,9 @@ public:
         alSourcef (this->sources[sound_id], AL_GAIN, gain);
     }
 
-    ~Synthesizer();
+    ~SynthesizerImpl();
 
 private:
-    Synthesizer();
-
     void load_wav_file(const std::string& filename);
 
     void load_ogg_file(const std::string filename);
@@ -74,10 +69,6 @@ private:
     void delete_buffers_and_sources();
 
     void bind_source_to_last_buffer();
-
-    // Singleton pattern
-    Synthesizer(Synthesizer const&) = delete;
-    void operator=(Synthesizer const&)  = delete;
 };
 
 #endif //_SYNTHESIZER_H

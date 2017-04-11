@@ -1,7 +1,7 @@
 /**************************************************************************
- *   screen.cpp  --  This file is part of AFELIRIN.                       *
+ *   singleton_holder.h  --  This file is part of AFELIRIN.               *
  *                                                                        *
- *   Copyright (C) 2016, Ivo Filot                                        *
+ *   Copyright (C) 2017, Ivo Filot                                        *
  *                                                                        *
  *   AFELIRIN is free software:                                           *
  *   you can redistribute it and/or modify it under the terms of the      *
@@ -19,12 +19,51 @@
  *                                                                        *
  **************************************************************************/
 
-#include "screen.h"
+#ifndef _SINGLETON_HOLDER_H
+#define _SINGLETON_HOLDER_H
 
-ScreenImpl::ScreenImpl() {
-    this->width = 800;
-    this->height = 600;
+#include <stdexcept>
 
-    this->resolution_x = 640;
-    this->resolution_y = 480;
-}
+template <class Singleton>
+class SingletonHolder {
+private:
+    static Singleton* instance;     //!< pointer to Singleton class
+    static bool flag_destroyed;     //!< boolean whether singleton has been destroyed
+
+public:
+    static Singleton& get() {
+        if(!instance) {
+            if(flag_destroyed) {
+                throw std::runtime_error("Dead reference detected");
+            }
+
+            // create the singleton object
+            create_singleton();
+        }
+        return *instance;
+    }
+
+private:
+    virtual ~SingletonHolder() {
+        this->instance = 0;
+        this->flag_destroyed = true;
+    }
+
+    SingletonHolder();
+
+    static void create_singleton() {
+        static Singleton the_instance;
+        instance = &the_instance;
+    }
+
+    SingletonHolder(SingletonHolder const&) = delete;
+    void operator=(SingletonHolder const&)  = delete;
+};
+
+template <class Singleton>
+bool SingletonHolder<Singleton>::flag_destroyed = false;
+
+template <class Singleton>
+Singleton* SingletonHolder<Singleton>::instance = 0;
+
+#endif //_SINGLETON_HOLDER_H

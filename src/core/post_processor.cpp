@@ -26,7 +26,7 @@
  *
  * @return      post_processor instance
  */
-PostProcessor::PostProcessor() : texture_slot(POSTPROCESSOR_TEXTURE_SLOT) {
+PostProcessorImpl::PostProcessorImpl() : texture_slot(POSTPROCESSOR_TEXTURE_SLOT) {
     this->msaa = 4;
     this->filter_flags = 0x00000000;
 
@@ -67,7 +67,7 @@ PostProcessor::PostProcessor() : texture_slot(POSTPROCESSOR_TEXTURE_SLOT) {
 /**
  * @brief      bind the msaa frame buffer
  */
-void PostProcessor::bind_frame_buffer() {
+void PostProcessorImpl::bind_frame_buffer() {
     glBindFramebuffer(GL_FRAMEBUFFER, this->frame_buffer_msaa);
     glEnable(GL_MULTISAMPLE);
     GLenum status;
@@ -88,14 +88,14 @@ void PostProcessor::bind_frame_buffer() {
 /**
  * @brief      unbind all frame buffers
  */
-void PostProcessor::unbind_frame_buffer() {
+void PostProcessorImpl::unbind_frame_buffer() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 /**
  * @brief      draw the result of the post processing to the screen
  */
-void PostProcessor::draw() {
+void PostProcessorImpl::draw() {
     // resample the buffer from msaa to regular
     this->resample_buffer();
 
@@ -109,7 +109,7 @@ void PostProcessor::draw() {
 /**
  * @brief      updates all render buffers and textures
  */
-void PostProcessor::window_reshape() {
+void PostProcessorImpl::window_reshape() {
     this->set_msaa_buffer(this->texture_msaa, this->depth_msaa);
     this->set_buffer(this->texture_p, this->depth_p);
     this->set_buffer(this->texture_s, this->depth_s);
@@ -126,7 +126,7 @@ void PostProcessor::window_reshape() {
 /**
  * @brief      class destructor
  */
-PostProcessor::~PostProcessor() {
+PostProcessorImpl::~PostProcessorImpl() {
     glDeleteRenderbuffers(1, &this->depth_p);
     glDeleteTextures(1, &this->texture_p);
     glDeleteFramebuffers(1, &this->frame_buffer_p);
@@ -146,7 +146,7 @@ PostProcessor::~PostProcessor() {
 /**
  * @brief      blit the content of the msaa fbo to the primary fbo
  */
-void PostProcessor::resample_buffer() {
+void PostProcessorImpl::resample_buffer() {
     glBindFramebuffer(GL_READ_FRAMEBUFFER, this->frame_buffer_msaa);
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, this->frame_buffer_p);
 
@@ -160,7 +160,7 @@ void PostProcessor::resample_buffer() {
 /**
  * @brief      perform series of filter passes on the active texture
  */
-void PostProcessor::apply_filters() {
+void PostProcessorImpl::apply_filters() {
     if(this->filter_flags & FILTER_BLUR) {
         this->blur();
     }
@@ -175,7 +175,7 @@ void PostProcessor::apply_filters() {
  *
  * @param[in]   pointer to the Shader class containing the filter
  */
-void PostProcessor::pass(const std::unique_ptr<Shader>& shader) {
+void PostProcessorImpl::pass(const std::unique_ptr<Shader>& shader) {
     //set buffer (draw to passive buffer)
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, this->frame_buffer_passive);
 
@@ -192,7 +192,7 @@ void PostProcessor::pass(const std::unique_ptr<Shader>& shader) {
 /**
  * @brief      perform blurring
  */
-void PostProcessor::blur() {
+void PostProcessorImpl::blur() {
     this->pass(this->shader_blur_h);
     this->pass(this->shader_blur_v);
 }
@@ -200,7 +200,7 @@ void PostProcessor::blur() {
 /**
  * @brief      swap passive and active buffers
  */
-void PostProcessor::swap_active_buffer() {
+void PostProcessorImpl::swap_active_buffer() {
     if(this->frame_buffer_active == this->frame_buffer_p) {
 
         this->frame_buffer_active = this->frame_buffer_s;
@@ -226,7 +226,7 @@ void PostProcessor::swap_active_buffer() {
 /**
  * @brief      perform a texture render (used for the filters)
  */
-void PostProcessor::render(const std::unique_ptr<Shader>& shader) {
+void PostProcessorImpl::render(const std::unique_ptr<Shader>& shader) {
     glClearColor(0.0, 0.0, 0.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -267,7 +267,7 @@ void PostProcessor::render(const std::unique_ptr<Shader>& shader) {
 /**
  * @brief      create the multisampling fbo
  */
-void PostProcessor::create_msaa_buffer(GLuint* render_buffer, GLuint* texture, GLuint* frame_buffer) {
+void PostProcessorImpl::create_msaa_buffer(GLuint* render_buffer, GLuint* texture, GLuint* frame_buffer) {
     const unsigned int width = Screen::get().get_resolution_x();
     const unsigned int height = Screen::get().get_resolution_y();
 
@@ -296,7 +296,7 @@ void PostProcessor::create_msaa_buffer(GLuint* render_buffer, GLuint* texture, G
 /**
  * @brief      create the renderbuffer objects
  */
-void PostProcessor::create_buffer(GLuint* render_buffer, GLuint* texture, GLuint* frame_buffer) {
+void PostProcessorImpl::create_buffer(GLuint* render_buffer, GLuint* texture, GLuint* frame_buffer) {
     const unsigned int width = Screen::get().get_resolution_x();
     const unsigned int height = Screen::get().get_resolution_y();
 
@@ -333,7 +333,7 @@ void PostProcessor::create_buffer(GLuint* render_buffer, GLuint* texture, GLuint
 /**
  * @brief      set width and height to msaa buffers
  */
-void PostProcessor::set_msaa_buffer(GLuint texture, GLuint frame_buffer) {
+void PostProcessorImpl::set_msaa_buffer(GLuint texture, GLuint frame_buffer) {
     // resize regular buffer
     glActiveTexture(GL_TEXTURE2);
     glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, texture);
@@ -348,7 +348,7 @@ void PostProcessor::set_msaa_buffer(GLuint texture, GLuint frame_buffer) {
 /**
  * @brief      set with and height to regular buffers
  */
-void PostProcessor::set_buffer(GLuint texture, GLuint frame_buffer) {
+void PostProcessorImpl::set_buffer(GLuint texture, GLuint frame_buffer) {
     const unsigned int width = Screen::get().get_resolution_x();
     const unsigned int height = Screen::get().get_resolution_y();
 
@@ -365,7 +365,7 @@ void PostProcessor::set_buffer(GLuint texture, GLuint frame_buffer) {
 /**
  * @brief      create a shader for filtering
  */
-void PostProcessor::create_shader(std::unique_ptr<Shader>* shader, const std::string& filename) {
+void PostProcessorImpl::create_shader(std::unique_ptr<Shader>* shader, const std::string& filename) {
     *shader = std::unique_ptr<Shader>(new Shader(filename));
     shader->get()->add_attribute(ShaderAttribute::POSITION, "position");
     shader->get()->add_uniform(ShaderUniform::TEXTURE, "text", 1);
@@ -382,7 +382,7 @@ void PostProcessor::create_shader(std::unique_ptr<Shader>* shader, const std::st
     glBindVertexArray(0);
 }
 
-void PostProcessor::load_mesh() {
+void PostProcessorImpl::load_mesh() {
     std::vector<glm::vec3> positions;
     std::vector<unsigned int> indices;
 

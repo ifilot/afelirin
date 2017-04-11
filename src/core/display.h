@@ -35,26 +35,33 @@
 #include "core/post_processor.h"
 #include "core/settings.h"
 
+#include "util/singleton_holder.h"
+
 /**
- * @class Display class
+ * @class DisplayImpl class
  *
  * @brief class handling the display
  *
  */
-class Display {
+class DisplayImpl {
+private:
+    GLFWwindow* m_window;       //!< pointer to the window
+
 public:
-    // classic lazy evaluated and correctly destroyed singleton
-    // adapted from: http://stackoverflow.com/questions/1008019/c-singleton-design-pattern
-    static Display& get() {
-        static Display instance;
-        return instance;
-    }
+    /**
+     * @brief DisplayImpl constructor
+     *
+     * Initializes the GLFW library, constructs a window and put it into context.
+     * Callbacks are set-up and the GLEW library is initialized.
+     *
+     */
+    DisplayImpl();
 
     /**
-     * Display destructor
+     * DisplayImpl destructor
      * Destructs the display class and terminates the window and the glfw library
      */
-    virtual ~Display();
+    virtual ~DisplayImpl();
 
     /**
      * @brief close frame function
@@ -167,22 +174,8 @@ public:
      *
      */
     static void char_callback(GLFWwindow* window, unsigned int key);
-
-private:
-    /**
-     * @brief Display constructor
-     *
-     * Initializes the GLFW library, constructs a window and put it into context.
-     * Callbacks are set-up and the GLEW library is initialized.
-     *
-     */
-    Display();
-
-    GLFWwindow* m_window;       //!< pointer to the window
-
-    // Singleton pattern
-    Display(Display const&)          = delete;
-    void operator=(Display const&)  = delete;
 };
+
+typedef SingletonHolder<DisplayImpl> Display;
 
 #endif // _DISPLAY_H

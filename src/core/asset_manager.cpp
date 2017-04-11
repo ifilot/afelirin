@@ -24,9 +24,9 @@
 /**
  * @brief       default constructor
  *
- * @return      AssetManager instance
+ * @return      AssetManagerImpl instance
  */
-AssetManager::AssetManager() {
+AssetManagerImpl::AssetManagerImpl() {
     // nothing to load
 }
 
@@ -39,7 +39,7 @@ AssetManager::AssetManager() {
  *
  * @return      void
  */
-void AssetManager::init(const char* argv0) {
+void AssetManagerImpl::init(const char* argv0) {
     this->execution_directory = executable_path(argv0);
 
     boost::filesystem::path p(this->execution_directory.c_str());

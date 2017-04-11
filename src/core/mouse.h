@@ -30,29 +30,24 @@
 #include "core/screen.h"
 #include "core/shader.h"
 
+#include "util/singleton_holder.h"
+
 /**
- * @class Mouse class
+ * @class MouseImpl class
  *
  * @brief class handling mouse actions such as raycasting
  *
  */
-class Mouse {
+class MouseImpl {
 private:
     glm::vec2 cur_pos;                    //!< current cursor position
     glm::vec2 cur_pos_sw;                 //!< current cursor position with origin in SW position
 
 public:
     /**
-     * @fn          get
-     *
-     * @brief       get a reference to the mouse
-     *
-     * @return      reference to the mouse object (singleton pattern)
+     * @brief       mouse constructor
      */
-    static Mouse& get() {
-        static Mouse mouse_instance;
-        return mouse_instance;
-    }
+    MouseImpl();
 
     /*
      * @brief Draw action so the mouse
@@ -81,13 +76,8 @@ public:
     }
 
 private:
-    /**
-     * @brief       mouse constructor
-     */
-    Mouse();
-
-    Mouse(Mouse const&)          = delete;
-    void operator=(Mouse const&)  = delete;
 };
+
+typedef SingletonHolder<MouseImpl> Mouse;
 
 #endif //_MOUSE_H

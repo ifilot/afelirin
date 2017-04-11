@@ -38,17 +38,19 @@
 #include <freetype2/fttrigon.h>
 #include <boost/lexical_cast.hpp>
 
+#include "util/singleton_holder.h"
+
 #include "core/asset_manager.h"
 #include "core/camera.h"
-#include "shader.h"
-#include "screen.h"
+#include "core/shader.h"
+#include "core/screen.h"
 #include "util/utf8.h"
 #include "util/mathfunc.h"
 
 #define FONT_TEXTURE_SLOT 1
 
 /**
- * @class FontWriter
+ * @class FontWriterImpl
  *
  * @brief writes text to the screen
  *
@@ -65,7 +67,7 @@
  * http://www.valvesoftware.com/publications/2007/SIGGRAPH2007_AlphaTestedMagnification.pdf
  *
  */
-class FontWriter {
+class FontWriterImpl {
 private:
     /**
      * @struct Glyph
@@ -174,12 +176,12 @@ private:
         /**
          * @brief Copy constructor
          */
-        CharacterAtlas(const FontWriter::CharacterAtlas& other);
+        CharacterAtlas(const FontWriterImpl::CharacterAtlas& other);
 
         /**
          * @brief Move constructor
          */
-        CharacterAtlas(FontWriter::CharacterAtlas&& other) noexcept;
+        CharacterAtlas(FontWriterImpl::CharacterAtlas&& other) noexcept;
 
         /**
          * @brief Destructor operator
@@ -223,15 +225,7 @@ private:
     std::vector<CharacterAtlas> fonts;              //!< vector holding all CharacterAtlas objects
 
 public:
-    /**
-     * @brief       get a reference to the FontWriter
-     *
-     * @return      reference to the FontWriter object (singleton pattern)
-     */
-    static FontWriter& get() {
-        static FontWriter font_writer_instance;
-        return font_writer_instance;
-    }
+    FontWriterImpl();
 
     /**
      * @brief       add a font (Character Atlas) to the FontWriter class
@@ -289,16 +283,8 @@ public:
      */
     void draw();
 
-private:
-    /**
-     * @brief       FontWriter constructor
-     *
-     * @return      FontWriter instance
-     */
-    FontWriter();
-
-    FontWriter(FontWriter const&)          = delete;
-    void operator=(FontWriter const&)  = delete;
 };
+
+typedef SingletonHolder<FontWriterImpl> FontWriter;
 
 #endif // _FONT_WRITER

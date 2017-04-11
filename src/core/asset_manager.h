@@ -28,31 +28,30 @@
 #include <boost/filesystem/path.hpp>
 #include <string>
 
+#include "util/singleton_holder.h"
+
 /**
- * @class AssetManager class
+ * @class AssetManagerImpl class
  * @brief class that finds absolute directory on hard drive to get assets from
  *
  * Load this class in the beginning of the program by calling right after the main function:
  *
- * AssetManager::get().init(argc[0])
+ * AssetManagerImpl::get().init(argc[0])
  *
  */
 
-class AssetManager{
+class AssetManagerImpl{
 private:
     std::string execution_directory;    //!< absolute path to folder where the executable resides
     std::string root_directory;         //!< absolute path to the root folder of the program
 
 public:
     /**
-     * @brief       get a reference to the AssetManager object
+     * @brief       default constructor
      *
-     * @return      reference to the AssetManager object (singleton pattern)
+     * @return      AssetManagerImpl instance
      */
-    static AssetManager& get() {
-        static AssetManager am_instance;
-        return am_instance;
-    }
+    AssetManagerImpl();
 
     /**
      * @brief       get the execution directory
@@ -84,13 +83,6 @@ public:
     void init(const char* argv0);
 
 private:
-    /**
-     * @brief       default constructor
-     *
-     * @return      AssetManager instance
-     */
-    AssetManager();
-
     std::string executable_path_fallback(const char *argv0) {
         if (argv0 == nullptr || argv0[0] == 0) {
             return "";
@@ -185,9 +177,8 @@ private:
     }
 
     #endif // }
-
-    AssetManager(AssetManager const&)          = delete;
-    void operator=(AssetManager const&)  = delete;
 };
+
+typedef SingletonHolder<AssetManagerImpl> AssetManager;
 
 #endif //_ASSET_MANAGER_H

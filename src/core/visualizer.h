@@ -32,11 +32,13 @@
 #include "core/light.h"
 #include "core/post_processor.h"
 
+#include "util/singleton_holder.h"
+
 /**
- * @class Visualizer class
+ * @class VisualizerImpl class
  * @brief Initializes entities and handles time propagation.
  */
-class Visualizer {
+class VisualizerImpl {
 private:
     /**
      * @var accumulator
@@ -79,19 +81,13 @@ private:
 
 public:
     /**
-     * @fn Visualizer get
-     * @brief Returns reference to Visualizer instance
+     * @fn VisualizerImpl method
+     * @brief VisualizerImpl constructor method
      *
-     * Static class member that returns a reference to a game instance.
-     * This pattern is uses classic lazy evaluated and correctly destroyed singleton.
-     * It is adapted from: http://stackoverflow.com/questions/1008019/c-singleton-design-pattern
+     * Loads up the display and initializes all entities.
      *
-     * @return reference to game instance
      */
-    static Visualizer& get() {
-        static Visualizer instance;
-        return instance;
-    }
+    VisualizerImpl();
 
     /**
      * @fn run method
@@ -157,15 +153,6 @@ public:
 
 private:
     /**
-     * @fn Visualizer method
-     * @brief Visualizer constructor method
-     *
-     * Loads up the display and initializes all entities.
-     *
-     */
-    Visualizer();
-
-    /**
      * @fn update method
      * @brief Handles time integration
      *
@@ -185,10 +172,8 @@ private:
     void draw();
 
     void post_draw();
-
-    /* Singleton pattern; the function below are deleted */
-    Visualizer(Visualizer const&)          = delete;
-    void operator=(Visualizer const&)  = delete;
 };
+
+typedef SingletonHolder<VisualizerImpl> Visualizer;
 
 #endif // _VISUALIZER_H

@@ -22,6 +22,42 @@
 #include "visualizer.h"
 
 /**
+ * @fn VisualizerImpl method
+ * @brief VisualizerImpl constructor method
+ *
+ * Loads up the display and initializes all entities.
+ *
+ * @return VisualizerImpl class
+ */
+VisualizerImpl::VisualizerImpl():
+    accumulator(0.0),       /* default accumulator should be zero */
+    fps(60.0),              /* set the target framerate */
+    num_frames(0) {
+
+    this->angle = 0.0;
+
+    /* calculate the time interval */
+    this->dt = 1.0 / fps;
+
+    /* set the time at the frame start */
+    this->frame_start = glfwGetTime();
+
+    /* make sure the display is loaded before loading the shader */
+    Display::get();
+
+    // load PostProcessor
+    PostProcessor::get();
+
+    // Load any fonts
+    FontWriter::get().add_font("./assets/fonts/retro.ttf",
+                                14,              // font size
+                                0.43f, 0.25f,    // sdf settings
+                                32,             // start char
+                                222             // number of chars
+                                );
+}
+
+/**
  * @fn run method
  * @brief Constructs a new game
  *
@@ -30,7 +66,7 @@
  *
  * @return void
  */
-void Visualizer::run(int argc, char* argv[]) {
+void VisualizerImpl::run(int argc, char* argv[]) {
     if(argc > 2) {
         std::cerr << "Invalid number of arguments" << std::endl;
     }
@@ -113,7 +149,7 @@ void Visualizer::run(int argc, char* argv[]) {
  *
  * @return void
  */
-void Visualizer::handle_key_down(int key, int scancode, int action, int mods) {
+void VisualizerImpl::handle_key_down(int key, int scancode, int action, int mods) {
     if(key == 'Q'  && mods & GLFW_MOD_CONTROL
                    && mods & GLFW_MOD_SHIFT
                    && mods & GLFW_MOD_ALT
@@ -137,56 +173,20 @@ void Visualizer::handle_key_down(int key, int scancode, int action, int mods) {
  *
  * @return void
  */
-void Visualizer::handle_mouse_key_down(int button, int action, int mods) {
+void VisualizerImpl::handle_mouse_key_down(int button, int action, int mods) {
 
 }
 
-void Visualizer::handle_mouse_cursor(double xpos, double ypos) {
+void VisualizerImpl::handle_mouse_cursor(double xpos, double ypos) {
     Mouse::get().set_cursor(xpos, ypos);
 }
 
-void Visualizer::handle_scroll(double xoffset, double yoffset) {
+void VisualizerImpl::handle_scroll(double xoffset, double yoffset) {
 
 }
 
-void Visualizer::handle_char_callback(unsigned int key) {
+void VisualizerImpl::handle_char_callback(unsigned int key) {
 
-}
-
-/**
- * @fn Game method
- * @brief Game constructor method
- *
- * Loads up the display and initializes all entities.
- *
- * @return Game class
- */
-Visualizer::Visualizer():
-    accumulator(0.0),       /* default accumulator should be zero */
-    fps(60.0),              /* set the target framerate */
-    num_frames(0) {
-
-    this->angle = 0.0;
-
-    /* calculate the time interval */
-    this->dt = 1.0 / fps;
-
-    /* set the time at the frame start */
-    this->frame_start = glfwGetTime();
-
-    /* make sure the display is loaded before loading the shader */
-    Display::get();
-
-    // load PostProcessor
-    PostProcessor::get();
-
-    // Load any fonts
-    FontWriter::get().add_font("./assets/fonts/retro.ttf",
-                                14,              // font size
-                                0.43f, 0.25f,    // sdf settings
-                                32,             // start char
-                                222             // number of chars
-                                );
 }
 
 /**
@@ -196,13 +196,12 @@ Visualizer::Visualizer():
  * Function handling time propagation
  *
  * @param dt Time integration constant
- * @return Game class
  */
-void Visualizer::update(double dt) {
+void VisualizerImpl::update(double dt) {
 
 }
 
-void Visualizer::update_second() {
+void VisualizerImpl::update_second() {
 
 }
 
@@ -212,7 +211,7 @@ void Visualizer::update_second() {
  * Activates all draw classes and binds the frame buffer for the MSAA
  *
  */
-void Visualizer::pre_draw() {
+void VisualizerImpl::pre_draw() {
     Screen::get().set_focus(glfwGetWindowAttrib(Display::get().get_window_ptr(), GLFW_FOCUSED));
     Display::get().open_frame();   /* start new frame */
 
@@ -234,7 +233,7 @@ void Visualizer::pre_draw() {
  * Draw all sprites on the screen
  *
  */
-void Visualizer::draw() {
+void VisualizerImpl::draw() {
     FontWriter::get().write_text(0, 50.f, 50.f, 0.f, glm::vec3(1,1,1), "Quadtree");
 }
 
@@ -244,7 +243,7 @@ void Visualizer::draw() {
  * Unbind frame buffer, render MSAA and draw the GUI
  *
  */
-void Visualizer::post_draw() {
+void VisualizerImpl::post_draw() {
     PostProcessor::get().unbind_frame_buffer();
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);

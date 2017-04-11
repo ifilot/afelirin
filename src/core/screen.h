@@ -26,13 +26,15 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
 
+#include "util/singleton_holder.h"
+
 /**
- * @class Screen class
+ * @class ScreenImpl class
  *
  * @brief class handling screen settings
  *
  */
-class Screen {
+class ScreenImpl {
 private:
     unsigned int width;       //!< width of the screen
     unsigned int height;      //!< height of the screen
@@ -43,17 +45,7 @@ private:
     bool flag_focus;          //!< whether screen is in focus
 
 public:
-    /**
-     * @fn          get
-     *
-     * @brief       get a reference to the screen
-     *
-     * @return      reference to the screen object (singleton pattern)
-     */
-    static Screen& get() {
-        static Screen screen_instance;
-        return screen_instance;
-    }
+    ScreenImpl();
 
     inline unsigned int get_width() const {
         return this->width;
@@ -102,13 +94,8 @@ public:
     inline void set_focus(bool focus) {
         this->flag_focus = focus;
     }
-
-private:
-    Screen();
-
-    // Singleton pattern
-    Screen(Screen const&)          = delete;
-    void operator=(Screen const&)  = delete;
 };
+
+typedef SingletonHolder<ScreenImpl> Screen;
 
 #endif //_SCREEN_H

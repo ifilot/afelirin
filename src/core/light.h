@@ -25,17 +25,15 @@
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 
-#include "camera.h"
+#include "util/singleton_holder.h"
+#include "core/camera.h"
 
-class Light {
+class LightImpl {
 private:
     glm::vec3 position;
 
 public:
-    static Light& get() {
-        static Light light_instance;
-        return light_instance;
-    }
+    LightImpl();
 
     inline const glm::vec3& get_position() const {
         return this->position;
@@ -43,11 +41,8 @@ public:
 
     void update();
 
-private:
-    Light();
-
-    Light(Light const&)          = delete;
-    void operator=(Light const&)  = delete;
 };
+
+typedef SingletonHolder<LightImpl> Light;
 
 #endif //_LIGHT_H

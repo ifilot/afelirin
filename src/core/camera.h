@@ -31,13 +31,14 @@
 #include <iostream>
 #include <algorithm>
 
-#include "screen.h"
+#include "util/singleton_holder.h"
+#include "core/screen.h"
 
 /**
- * @class Camera class
+ * @class CameraImpl class
  * @brief class handling the camera
  */
-class Camera {
+class CameraImpl {
 private:
     glm::mat4 projection;               //!< perspective matrix
     glm::mat4 view;                     //!< view matrix
@@ -47,16 +48,7 @@ private:
     float aspect_ratio;                     //!< aspect ratio of the window
 
 public:
-
-    /**
-     * @brief       get a reference to the camera object
-     *
-     * @return      reference to the camera object (singleton pattern)
-     */
-    static Camera& get() {
-        static Camera camera_instance;
-        return camera_instance;
-    }
+    CameraImpl();
 
     //*************************
     // GETTERS
@@ -136,16 +128,8 @@ public:
      */
     void set_camera_position(const glm::vec3& _position, const glm::vec3& _up);
 
-private:
-    /**
-     * @brief       camera constructor
-     *
-     * @return      camera instance
-     */
-    Camera();
-
-    Camera(Camera const&)          = delete;
-    void operator=(Camera const&)  = delete;
 };
+
+typedef SingletonHolder<CameraImpl> Camera;
 
 #endif // _CAMERA_H

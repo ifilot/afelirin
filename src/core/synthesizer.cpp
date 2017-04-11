@@ -21,7 +21,7 @@
 
 #include "synthesizer.h"
 
-Synthesizer::Synthesizer() {
+SynthesizerImpl::SynthesizerImpl() {
     alutInit(NULL, 0);
     alGetError();
 
@@ -30,12 +30,9 @@ Synthesizer::Synthesizer() {
     this->load_ogg_file("effects/block_destroy.ogg");
 
     this->set_listener();
-
-    // set an exit procedure
-    atexit(Synthesizer::kill_synthesizer);
 }
 
-void Synthesizer::load_wav_file(const std::string& filename) {
+void SynthesizerImpl::load_wav_file(const std::string& filename) {
     // Load wav data into a buffer.
 
     this->buffers.push_back(0);
@@ -48,7 +45,7 @@ void Synthesizer::load_wav_file(const std::string& filename) {
     }
 }
 
-void Synthesizer::load_ogg_file(const std::string filename) {
+void SynthesizerImpl::load_ogg_file(const std::string filename) {
     OggVorbis_File vf;
 
     if(ov_fopen((AssetManager::get().get_root_directory() + "assets/ogg/" + filename).c_str(), &vf) < 0) {
@@ -108,7 +105,7 @@ void Synthesizer::load_ogg_file(const std::string filename) {
     }
 }
 
-void Synthesizer::set_listener() {
+void SynthesizerImpl::set_listener() {
     // Position of the Listener.
     ALfloat listener_position[] = { 0.0, 0.0, 0.0 };
 
@@ -124,7 +121,7 @@ void Synthesizer::set_listener() {
     alListenerfv(AL_ORIENTATION, listener_orientation);
 }
 
-void Synthesizer::delete_buffers_and_sources() {
+void SynthesizerImpl::delete_buffers_and_sources() {
     for(auto buffer = this->buffers.begin(); buffer != this->buffers.end(); buffer++) {
         alDeleteBuffers(1, &(*buffer));
     }
@@ -137,17 +134,12 @@ void Synthesizer::delete_buffers_and_sources() {
     this->sources.clear();
 }
 
-void Synthesizer::kill_synthesizer() {
-    Synthesizer::get().delete_buffers_and_sources();
-    alutExit();
-}
-
-Synthesizer::~Synthesizer() {
+SynthesizerImpl::~SynthesizerImpl() {
     this->delete_buffers_and_sources();
     alutExit();
 }
 
-void Synthesizer::bind_source_to_last_buffer() {
+void SynthesizerImpl::bind_source_to_last_buffer() {
     this->sources.push_back(0);
     alGenSources(1, &this->sources.back());
 

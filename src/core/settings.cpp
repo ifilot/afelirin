@@ -21,12 +21,12 @@
 
 #include "settings.h"
 
-Settings::Settings() {
+SettingsImpl::SettingsImpl() {
     this->settings_file = AssetManager::get().get_root_directory() + "assets/configuration/settings.json";
     this->load();
 }
 
-void Settings::load() {
+void SettingsImpl::load() {
     try {
         boost::property_tree::read_json(this->settings_file, this->root);
     } catch(std::exception const& ex) {
@@ -37,28 +37,28 @@ void Settings::load() {
     }
 }
 
-glm::vec3 Settings::get_color_from_keyword(const std::string& keyword) {
+glm::vec3 SettingsImpl::get_color_from_keyword(const std::string& keyword) {
     const std::string col = this->root.get<std::string>(keyword);
     return this->rgb2vec3(col);
 }
 
-std::string Settings::get_string_from_keyword(const std::string& keyword) {
+std::string SettingsImpl::get_string_from_keyword(const std::string& keyword) {
     return this->root.get<std::string>(keyword);
 }
 
-float Settings::get_float_from_keyword(const std::string& keyword) {
+float SettingsImpl::get_float_from_keyword(const std::string& keyword) {
     return boost::lexical_cast<float>(this->root.get<std::string>(keyword));
 }
 
-unsigned int Settings::get_uint_from_keyword(const std::string& keyword) {
+unsigned int SettingsImpl::get_uint_from_keyword(const std::string& keyword) {
     return boost::lexical_cast<unsigned int>(this->root.get<std::string>(keyword));
 }
 
-bool Settings::get_boolean_from_keyword(const std::string& keyword) {
+bool SettingsImpl::get_boolean_from_keyword(const std::string& keyword) {
     return this->root.get<std::string>(keyword).compare("true");
 }
 
-glm::vec3 Settings::rgb2vec3(const std::string& rgb) {
+glm::vec3 SettingsImpl::rgb2vec3(const std::string& rgb) {
     const std::string r = rgb.substr(0,2);
     const std::string g = rgb.substr(2,2);
     const std::string b = rgb.substr(4,2);

@@ -22,13 +22,13 @@
 #include "display.h"
 
 /**
- * @brief Display constructor
+ * @brief DisplayImpl constructor
  *
  * Initializes the GLFW library, constructs a window and put it into context.
  * Callbacks are set-up and the GLEW library is initialized.
  *
  */
-Display::Display() {
+DisplayImpl::DisplayImpl() {
     // set the error callback
     glfwSetErrorCallback(error_callback);
 
@@ -125,7 +125,7 @@ Display::Display() {
  *
  * Perform these instructions at the start of each frame
  */
-void Display::open_frame() {
+void DisplayImpl::open_frame() {
 
 }
 
@@ -134,7 +134,7 @@ void Display::open_frame() {
  *
  * Perform these instructions at the end of each frame
  */
-void Display::close_frame() {
+void DisplayImpl::close_frame() {
     glfwSwapBuffers(this->m_window);
     glfwPollEvents();
 }
@@ -142,7 +142,7 @@ void Display::close_frame() {
 /*
  * @brief Checks if the window is closed and if so, terminates the program
  */
-bool Display::is_closed() {
+bool DisplayImpl::is_closed() {
     return glfwWindowShouldClose(this->m_window);
 }
 
@@ -151,7 +151,7 @@ bool Display::is_closed() {
  *
  * Destructs the display class and terminates the window and the glfw library
  */
-Display::~Display() {
+DisplayImpl::~DisplayImpl() {
     glfwDestroyWindow(this->m_window);
     glfwTerminate();
 }
@@ -159,7 +159,7 @@ Display::~Display() {
  /*
  * @brief center the mouse pointer
  */
-void Display::center_mouse_pointer() {
+void DisplayImpl::center_mouse_pointer() {
     glfwSetCursorPos(this->m_window, (float)Screen::get().get_width() / 2.0f, (float)Screen::get().get_height() / 2.0f);
 }
 
@@ -168,7 +168,7 @@ void Display::center_mouse_pointer() {
  *
  * @param window_name   the window name
  */
-void Display::set_window_title(const std::string& window_name) {
+void DisplayImpl::set_window_title(const std::string& window_name) {
     glfwSetWindowTitle(this->m_window, window_name.c_str());
 }
 
@@ -177,7 +177,7 @@ void Display::set_window_title(const std::string& window_name) {
  *
  * @return the position of the cursor
  */
-const glm::vec2 Display::get_cursor_position() const {
+const glm::vec2 DisplayImpl::get_cursor_position() const {
     double xpos, ypos;
     glfwGetCursorPos(this->m_window, &xpos, &ypos);
     return glm::vec2((float)xpos / (float)Screen::get().get_width(),
@@ -197,7 +197,7 @@ const glm::vec2 Display::get_cursor_position() const {
  * @param description   error description
  *
  */
-void Display::error_callback(int error, const char* description) {
+void DisplayImpl::error_callback(int error, const char* description) {
     std::cerr << description << std::endl;
 }
 
@@ -211,7 +211,7 @@ void Display::error_callback(int error, const char* description) {
  * @param[in] mods
  *
  */
-void Display::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+void DisplayImpl::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     Visualizer::get().handle_key_down(key, scancode, action, mods);
 }
 
@@ -224,7 +224,7 @@ void Display::key_callback(GLFWwindow* window, int key, int scancode, int action
  * @param[in] mods
  *
  */
-void Display::mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+void DisplayImpl::mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
     Visualizer::get().handle_mouse_key_down(button, action, mods);
 }
 
@@ -236,7 +236,7 @@ void Display::mouse_button_callback(GLFWwindow* window, int button, int action, 
  * @param[in] yoffset  scroll wheel offset in y direction
  *
  */
-void Display::scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
+void DisplayImpl::scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
     Visualizer::get().handle_scroll(xoffset, yoffset);
 }
 
@@ -248,7 +248,7 @@ void Display::scroll_callback(GLFWwindow* window, double xoffset, double yoffset
  * @param[in] paths     pathnames
  *
  */
-void Display::drop_callback(GLFWwindow* window, int count, const char** paths) {
+void DisplayImpl::drop_callback(GLFWwindow* window, int count, const char** paths) {
 
 }
 
@@ -260,7 +260,7 @@ void Display::drop_callback(GLFWwindow* window, int count, const char** paths) {
  * @param[in] ypos      y position of the mouse cursor on screen
  *
  */
-void Display::mouse_cursor_callback(GLFWwindow* window, double xpos, double ypos) {
+void DisplayImpl::mouse_cursor_callback(GLFWwindow* window, double xpos, double ypos) {
     Visualizer::get().handle_mouse_cursor(xpos, ypos);
 }
 
@@ -271,14 +271,14 @@ void Display::mouse_cursor_callback(GLFWwindow* window, double xpos, double ypos
  * @param[in] window    key to parse
  *
  */
-void Display::char_callback(GLFWwindow* window, unsigned int key) {
+void DisplayImpl::char_callback(GLFWwindow* window, unsigned int key) {
     Visualizer::get().handle_char_callback(key);
 }
 
 /**
  * @brief perform window resizing
  */
-void Display::framebuffer_size_callback(GLFWwindow* window, int width, int height) {
+void DisplayImpl::framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     // update screen settings
     Screen::get().set_width(width);
     Screen::get().set_height(height);

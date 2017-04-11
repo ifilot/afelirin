@@ -27,18 +27,20 @@
 #include <vector>
 #include <memory>
 
-#include "screen.h"
-#include "shader.h"
+#include "core/screen.h"
+#include "core/shader.h"
+
+#include "util/singleton_holder.h"
 
 #define POSTPROCESSOR_TEXTURE_SLOT 2
 
 /**
- * @class PostProcessor class
+ * @class PostProcessorImpl class
  *
  * @brief class handling the post_processor
  *
  */
-class PostProcessor {
+class PostProcessorImpl {
 private:
     GLuint frame_buffer_msaa;         //!< OpenGL reference to multi sampling frame buffer object
     GLuint frame_buffer_p;            //!< OpenGL reference to primary frame buffer object
@@ -76,16 +78,11 @@ private:
 
 public:
     /**
-     * @fn          get
+     * @brief       post_processor constructor
      *
-     * @brief       get a reference to the post_processor
-     *
-     * @return      reference to the post_processor object (singleton pattern)
+     * @return      post_processor instance
      */
-    static PostProcessor& get() {
-        static PostProcessor post_processor_instance;
-        return post_processor_instance;
-    }
+    PostProcessorImpl();
 
     static const unsigned int FILTER_BLUR = 1 << 0;
     static const unsigned int FILTER_INVERT = 1 << 1;
@@ -131,16 +128,9 @@ public:
     /**
      * @brief      class destructor
      */
-    ~PostProcessor();
+    ~PostProcessorImpl();
 
 private:
-    /**
-     * @brief       post_processor constructor
-     *
-     * @return      post_processor instance
-     */
-    PostProcessor();
-
     /**
      * @brief      blit the content of the msaa fbo to the primary fbo
      */
@@ -199,9 +189,8 @@ private:
     void create_shader(std::unique_ptr<Shader>* shader, const std::string& filename);
 
     void load_mesh();
-
-    PostProcessor(PostProcessor const&)          = delete;
-    void operator=(PostProcessor const&)  = delete;
 };
+
+typedef SingletonHolder<PostProcessorImpl> PostProcessor;
 
 #endif // _POST_PROCESSOR_H

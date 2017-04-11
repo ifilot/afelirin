@@ -21,10 +21,10 @@
 
 #include "light.h"
 
-Light::Light() {
+LightImpl::LightImpl() {
     this->position = glm::vec3(0,0,0);
 }
 
-void Light::update() {
+void LightImpl::update() {
 
 }

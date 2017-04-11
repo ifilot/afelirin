@@ -22,11 +22,21 @@
 #include "camera.h"
 
 /**
+ * @brief       camera constructor
+ *
+ * @return      camera instance
+ */
+CameraImpl::CameraImpl() {
+    this->position = glm::vec2(0.0f, 0.0f);
+    this->update();
+}
+
+/**
  * @brief       update the camera perspective matrix
  *
  * @return      void
  */
-void Camera::update() {
+void CameraImpl::update() {
     this->projection = glm::ortho(0.0f, 22.0f * this->aspect_ratio, 0.0f, 22.0f, -300.0f, 300.0f);
     this->view = glm::lookAt(
                     glm::vec3(this->position, 1.0),              // cam pos
@@ -40,7 +50,7 @@ void Camera::update() {
  *
  * @return      void
  */
-void Camera::translate(const glm::vec3& trans) {
+void CameraImpl::translate(const glm::vec3& trans) {
     this->update();
 }
 
@@ -51,16 +61,6 @@ void Camera::translate(const glm::vec3& trans) {
  * @param      up direction
  * @return     void
  */
-void Camera::set_camera_position(const glm::vec3& _position, const glm::vec3& _up) {
-    this->update();
-}
-
-/**
- * @brief       camera constructor
- *
- * @return      camera instance
- */
-Camera::Camera() {
-    this->position = glm::vec2(0.0f, 0.0f);
+void CameraImpl::set_camera_position(const glm::vec3& _position, const glm::vec3& _up) {
     this->update();
 }

@@ -33,16 +33,15 @@
 
 #include "core/asset_manager.h"
 
-class Settings {
+#include "util/singleton_holder.h"
+
+class SettingsImpl {
 private:
     std::string settings_file;
     boost::property_tree::ptree root;
 
 public:
-    static Settings& get() {
-        static Settings settings_instance;
-        return settings_instance;
-    }
+    SettingsImpl();
 
     glm::vec3 get_color_from_keyword(const std::string& keyword);
     std::string get_string_from_keyword(const std::string& keyword);
@@ -51,14 +50,11 @@ public:
     bool get_boolean_from_keyword(const std::string& keyword);
 
 private:
-    Settings();
-
     void load();
 
     glm::vec3 rgb2vec3(const std::string& rgb);
-
-    Settings(Settings const&)          = delete;
-    void operator=(Settings const&)  = delete;
 };
+
+typedef SingletonHolder<SettingsImpl> Settings;
 
 #endif //_SETTINGS_H
