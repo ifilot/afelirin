@@ -44,7 +44,7 @@ private:
     glm::mat4 projection;               //!< perspective matrix
     glm::mat4 view;                     //!< view matrix
 
-    glm::vec2 position;                 //!< position of the camera in world space
+    glm::vec3 position;                 //!< position of the camera in world space
 
     float aspect_ratio;                     //!< aspect ratio of the window
 
@@ -78,7 +78,7 @@ public:
      *
      * @return      position
      */
-    inline const glm::vec2& get_position() const {
+    inline const glm::vec3& get_position() const {
         return this->position;
     }
 

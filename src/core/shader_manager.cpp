@@ -27,30 +27,15 @@ ShaderManagerImpl::ShaderManagerImpl() {
 
 void ShaderManagerImpl::construct_shaders() {
     std::shared_ptr<Shader> shader;
-    this->shaders.emplace("line_shader", std::make_shared<Shader>("assets/shaders/line"));
-    this->shaders.emplace("node_shader", std::make_shared<Shader>("assets/shaders/node"));
-    this->shaders.emplace("curve_shader", std::make_shared<Shader>("assets/shaders/curve"));
+    this->shaders.emplace("model_shader", std::make_shared<Shader>("assets/shaders/model"));
 
-    shader = this->get_shader("line_shader");
+    shader = this->get_shader("model_shader");
     shader->add_attribute(ShaderAttribute::POSITION, "position");
+    shader->add_attribute(ShaderAttribute::NORMAL, "normal");
+    shader->add_uniform(ShaderUniform::MAT4, "model");
     shader->add_uniform(ShaderUniform::MAT4, "mvp");
-    shader->add_uniform(ShaderUniform::VEC4, "color");
-    shader->add_uniform(ShaderUniform::FLOAT, "z");
-    shader->bind_uniforms_and_attributes();
-
-    shader = this->get_shader("node_shader");
-    shader->add_attribute(ShaderAttribute::POSITION, "position");
-    shader->add_uniform(ShaderUniform::MAT4, "mvp");
-    shader->add_uniform(ShaderUniform::VEC4, "color");
-    shader->add_uniform(ShaderUniform::FLOAT, "z");
-    shader->bind_uniforms_and_attributes();
-
-    shader = this->get_shader("curve_shader");
-    shader->add_attribute(ShaderAttribute::POSITION, "position");
-    shader->add_uniform(ShaderUniform::MAT4, "mvp");
-    shader->add_uniform(ShaderUniform::VEC4, "color");
-    shader->add_uniform(ShaderUniform::FLOAT, "z");
-    shader->add_uniform(ShaderUniform::INT, "num_steps");
+    shader->add_uniform(ShaderUniform::MAT4, "view");
+    shader->add_uniform(ShaderUniform::VEC3, "color");
     shader->bind_uniforms_and_attributes();
 }
 

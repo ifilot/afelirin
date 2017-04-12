@@ -36,6 +36,8 @@
 
 #include "core/commands/engine/engine_commands.h"
 
+#include "app/game.h"
+
 /**
  * @class Engine class
  * @brief Initializes entities and handles time propagation.
@@ -87,6 +89,8 @@ private:
     std::shared_ptr<Camera> camera;
     std::shared_ptr<Mouse> mouse;
     std::shared_ptr<FontWriter> font_writer;
+
+    std::unique_ptr<Game> game;
 
 public:
     /**

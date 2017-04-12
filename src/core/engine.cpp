@@ -73,6 +73,8 @@ Engine::Engine():
     // bind all commands to EngineClient
     this->bind_commands();
     this->engine_client->update_resolution();
+
+    this->game = std::make_unique<Game>(this->camera);
 }
 
 /**
@@ -163,7 +165,7 @@ void Engine::run(int argc, char* argv[]) {
  * @param dt Time integration constant
  */
 void Engine::update(double dt) {
-
+    this->game->update(dt);
 }
 
 void Engine::update_second() {
@@ -199,7 +201,7 @@ void Engine::pre_draw() {
  *
  */
 void Engine::draw() {
-    this->font_writer->write_text(0, 50.f, 50.f, 0.f, glm::vec3(1,1,1), "Quadtree");
+    this->game->draw();
 }
 
 /**
@@ -214,6 +216,8 @@ void Engine::post_draw() {
     glEnable(GL_BLEND);
     glViewport(0, 0, this->screen->get_width(), this->screen->get_height());
     this->post_processor->draw();
+
+    this->font_writer->write_text(0, 50.f, 50.f, 0.f, glm::vec3(1,1,1), "Quadtree");
 
     this->engine_client->close_frame();
 }

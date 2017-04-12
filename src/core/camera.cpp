@@ -27,7 +27,7 @@
  * @return      camera instance
  */
 Camera::Camera() {
-    this->position = glm::vec2(0.0f, 0.0f);
+    this->position = glm::vec3(0.0f, 0.0f, 5.0f);
     this->update();
 }
 
@@ -37,10 +37,10 @@ Camera::Camera() {
  * @return      void
  */
 void Camera::update() {
-    this->projection = glm::ortho(0.0f, 22.0f * this->aspect_ratio, 0.0f, 22.0f, -300.0f, 300.0f);
+    this->projection = glm::infinitePerspective(45.0f, this->aspect_ratio, 0.1f);
     this->view = glm::lookAt(
-                    glm::vec3(this->position, 1.0),              // cam pos
-                    glm::vec3(this->position, 0.0),              // look at
+                    glm::vec3(this->position),              // cam pos
+                    glm::vec3(this->position.xy(), 0.0),      // look at
                     glm::vec3(0,1,0)               // up
                 );
 }
