@@ -22,24 +22,88 @@
 #ifndef _COMMAND_H
 #define _COMMAND_H
 
-class CommandP0 {
+#include <unordered_map>
+#include <string>
+#include <stdexcept>
+
+class Command {
+protected:
+    std::unordered_map<std::string, boost::any> params;
+
 public:
-    virtual ~CommandP0() {}
+    virtual ~Command() {}
     virtual void execute() = 0;
+
+    void set_param(const std::string& name, const boost::any& value) {
+        auto search = this->params.find(name);
+        if(search != this->params.end()) {
+            search->second = value;
+        } else {
+            params.emplace(name, value);
+        }
+    }
+
+    template<typename T>
+    T get_param(const std::string& name) {
+        return boost::any_cast<T>(this->get_value(name));
+    }
+
+protected:
+    const boost::any& get_value(const std::string& name) {
+        auto search = this->params.find(name);
+        if(search != this->params.end()) {
+            return search->second;
+        } else {
+            throw std::logic_error("Unknown parameter");
+        }
+    }
 };
 
-template<typename P0>
-class CommandP1 {
+class CommandHolder {
+private:
+    std::unique_ptr<Command> cmd;
+
 public:
-    virtual ~CommandP1() {}
-    virtual void execute(P0) = 0;
+    CommandHolder(Command* _cmd) : cmd(_cmd) {}
+
+    inline void execute() {
+        this->cmd->execute();
+    }
+
+    inline CommandHolder* set_param(const std::string& name, const boost::any& value) {
+        this->cmd->set_param(name, value);
+        return this;
+    }
+
+    inline Command* get() {
+        return this->cmd.get();
+    }
 };
 
-template<typename P0, typename P1>
-class CommandP2 {
+class CommandController {
+private:
+    std::unordered_map<std::string, CommandHolder> cmds;
+
 public:
-    virtual ~CommandP2() {}
-    virtual void execute(P0, P1) = 0;
+    CommandController() {}
+
+    void add_cmd(const std::string& name, Command* _cmd) {
+        this->cmds.emplace(name, _cmd);
+    }
+
+    void execute_cmd(const std::string& name) {
+        this->get_cmd(name)->execute();
+    }
+
+    CommandHolder* get_cmd(const std::string& name) {
+        auto search = this->cmds.find(name);
+        if(search != this->cmds.end()) {
+            return &search->second;
+        } else {
+            throw std::logic_error("Unknown command");
+        }
+    }
+
 };
 
 #endif //_COMMAND_H

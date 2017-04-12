@@ -85,6 +85,7 @@ private:
     std::shared_ptr<PostProcessor> post_processor;
     std::shared_ptr<Screen> screen;
     std::shared_ptr<Camera> camera;
+    std::shared_ptr<Mouse> mouse;
     std::shared_ptr<FontWriter> font_writer;
 
 public:

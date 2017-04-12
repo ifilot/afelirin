@@ -1,5 +1,5 @@
 /**************************************************************************
- *   command_update_resolution.h  --  This file is part of AFELIRIN.      *
+ *   command_on_mouse_cursor.h  --  This file is part of AFELIRIN.        *
  *                                                                        *
  *   Copyright (C) 2017, Ivo Filot                                        *
  *                                                                        *
@@ -19,37 +19,33 @@
  *                                                                        *
  **************************************************************************/
 
-#ifndef _COMMAND_ON_RESIZE_H
-#define _COMMAND_ON_RESIZE_H
+/*
+ * @file: command_on_mouse_cursor.h
+ *
+ * Used in Command Design Pattern; this function is passed to the EngineClient
+ * class and is executed when the mouse cursor is moved.
+ *
+ */
+
+#ifndef _COMMAND_ON_MOUSE_CURSOR
+#define _COMMAND_ON_MOUSE_CURSOR
 
 #include <memory>
 
-class CommandUpdateResolution : public CommandP2<int, int> {
+class EngineCommandOnMouseCursor : public Command {
 private:
-    std::shared_ptr<Screen> screen;
-    std::shared_ptr<PostProcessor> post_processor;
-    std::shared_ptr<Camera> camera;
+    std::shared_ptr<Mouse> mouse;
 
 public:
-    CommandUpdateResolution(const std::shared_ptr<Screen> _screen,
-                    const std::shared_ptr<PostProcessor> _postprocessor,
-                    const std::shared_ptr<Camera> _camera) :
-    screen(_screen),
-    post_processor(_postprocessor),
-    camera(_camera) { }
+    EngineCommandOnMouseCursor(const std::shared_ptr<Mouse> _mouse) :
+    mouse(_mouse) { }
 
-    void execute(int width, int height) {
-        // // update screen settings
-        this->screen->set_width(width);
-        this->screen->set_height(height);
+    void execute() {
+        const double xpos = this->get_param<double>("xpos");
+        const double ypos = this->get_param<double>("ypos");
 
-        // update camera settings
-        this->camera->set_aspect_ratio(this->screen->get_aspect_ratio_resolution());
-        this->camera->update();
-
-        // update post processor
-        this->post_processor->window_reshape();
+        this->mouse->set_cursor(xpos, ypos);
     }
 };
 
-#endif // _COMMAND_ON_RESIZE_H
+#endif // _COMMAND_ON_MOUSE_CURSOR

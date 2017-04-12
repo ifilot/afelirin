@@ -19,26 +19,40 @@
  *                                                                        *
  **************************************************************************/
 
+/*
+ * @file: command_on_resize.h
+ *
+ * Used in Command Design Pattern; this function is passed to the EngineClient
+ * class and is executed when the screen is resized. This function removes
+ * direct coupling of the EngineClient class with the Screen, Camera and
+ * PostProcessor classes.
+ *
+ */
+
 #ifndef _COMMAND_ON_RESIZE_H
 #define _COMMAND_ON_RESIZE_H
 
 #include <memory>
 
-class CommandOnResize : public CommandP2<int, int> {
+class EngineCommandOnResize : public Command {
 private:
     std::shared_ptr<Screen> screen;
     std::shared_ptr<PostProcessor> post_processor;
     std::shared_ptr<Camera> camera;
+    GLFWwindow* m_window;       //!< pointer to the window
 
 public:
-    CommandOnResize(const std::shared_ptr<Screen> _screen,
+    EngineCommandOnResize(const std::shared_ptr<Screen> _screen,
                     const std::shared_ptr<PostProcessor> _postprocessor,
                     const std::shared_ptr<Camera> _camera) :
     screen(_screen),
     post_processor(_postprocessor),
     camera(_camera) { }
 
-    void execute(int width, int height) {
+    void execute() {
+        const int width = this->get_param<int>("width");
+        const int height = this->get_param<int>("height");
+
         // // update screen settings
         this->screen->set_width(width);
         this->screen->set_height(height);

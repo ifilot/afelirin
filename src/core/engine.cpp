@@ -48,6 +48,9 @@ Engine::Engine():
     // load screen
     this->screen = std::shared_ptr<Screen>(new Screen());
 
+    // load mouse
+    this->mouse = std::shared_ptr<Mouse>(new Mouse(this->screen));
+
     // load PostProcessor
     this->post_processor = std::shared_ptr<PostProcessor>(new PostProcessor(this->screen));
     this->post_processor->window_reshape();
@@ -226,5 +229,6 @@ void Engine::bind_commands() {
         throw std::logic_error("Illegal bind command found, you have to initialize camera first.");
     }
 
-    this->engine_client->bind_command_on_resize(new CommandOnResize(this->screen, this->post_processor, this->camera));
+    this->engine_client->bind_command("on_resize", new EngineCommandOnResize(this->screen, this->post_processor, this->camera));
+    this->engine_client->bind_command("on_mouse_cursor", new EngineCommandOnMouseCursor(this->mouse));
 }

@@ -22,3 +22,4 @@
 // just load all commands for the engine
 
 #include "command_on_resize.h"
+#include "command_on_mouse_cursor.h"

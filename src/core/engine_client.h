@@ -31,9 +31,6 @@
 #include <boost/format.hpp>
 #include <boost/noncopyable.hpp>
 
-#include "core/camera.h"
-#include "core/screen.h"
-#include "core/post_processor.h"
 #include "core/settings.h"
 
 #include "util/command.h"
@@ -48,8 +45,8 @@ class EngineClient : private boost::noncopyable {
 private:
     GLFWwindow* m_window;       //!< pointer to the window
 
-    std::unique_ptr<CommandP2<int, int> > command_on_resize;
-    std::unique_ptr<CommandP0 > command_update_resolution;
+    // list of command objects
+    CommandController cmdcont;
 
 public:
     /**
@@ -100,8 +97,16 @@ public:
      */
     void set_window_title(const std::string& window_name);
 
+    /*
+     * @brief updates the resolution of the screen; called by Engine after EngineClient is created
+     */
     void update_resolution();
 
+    /*
+     * @brief get a pointer to the GLFW window
+     *
+     * @return the pointer to the window
+     */
     inline GLFWwindow* get_window_ptr() {
         return this->m_window;
     }
@@ -159,8 +164,8 @@ public:
     // COMMAND SETTERS
     //---------------------------------------------
 
-    inline void bind_command_on_resize(CommandP2<int, int>* _cmd) {
-        this->command_on_resize = std::unique_ptr<CommandP2<int, int> >(_cmd);
+    inline void bind_command(const std::string& name, Command* _cmd) {
+        this->cmdcont.add_cmd(name, _cmd);
     }
 };
 

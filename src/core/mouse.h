@@ -25,6 +25,7 @@
 #include <iostream>
 #include <memory>
 #include <algorithm>
+#include <boost/noncopyable.hpp>
 
 #include "core/camera.h"
 #include "core/screen.h"
@@ -36,7 +37,7 @@
  * @brief class handling mouse actions such as raycasting
  *
  */
-class Mouse {
+class Mouse : boost::noncopyable {
 private:
     glm::vec2 cur_pos;                    //!< current cursor position
     glm::vec2 cur_pos_sw;                 //!< current cursor position with origin in SW position

@@ -110,10 +110,6 @@ EngineClient::EngineClient() {
 
     // disable cursor (we are going to use our own)
     //glfwSetInputMode(this->m_window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-
-    // configure camera dimensions
-    int width, height;
-    glfwGetWindowSize(this->m_window, &width, &height);
 }
 
 /**
@@ -161,10 +157,20 @@ void EngineClient::set_window_title(const std::string& window_name) {
     glfwSetWindowTitle(this->m_window, window_name.c_str());
 }
 
+/*
+ * @brief updates the resolution of the screen, camera and postprocessor
+ */
 void EngineClient::update_resolution() {
+    // get values
     int width, height;
     glfwGetWindowSize(this->m_window, &width, &height);
-    this->command_on_resize->execute(width, height);
+
+    // set parameters
+    this->cmdcont.get_cmd("on_resize")->set_param("width", width)
+                                      ->set_param("height", height);
+
+    // execute command
+    this->cmdcont.execute_cmd("on_resize");
 }
 
 /*
@@ -244,7 +250,17 @@ void EngineClient::drop_callback(GLFWwindow* window, int count, const char** pat
  *
  */
 void EngineClient::mouse_cursor_callback(GLFWwindow* window, double xpos, double ypos) {
+    static const std::string cmd_string = "on_mouse_cursor";
 
+    // obtain pointer to this EngineClient
+    EngineClient* ec = reinterpret_cast<EngineClient*>(glfwGetWindowUserPointer(window));
+
+    // set parameters
+    ec->cmdcont.get_cmd(cmd_string)->set_param("xpos", xpos)
+                                   ->set_param("ypos", ypos);
+
+    // execute command
+    ec->cmdcont.execute_cmd(cmd_string);
 }
 
 /**
@@ -262,6 +278,15 @@ void EngineClient::char_callback(GLFWwindow* window, unsigned int key) {
  * @brief perform window resizing
  */
 void EngineClient::framebuffer_size_callback(GLFWwindow* window, int width, int height) {
+    static const std::string cmd_string = "on_resize";
+
+    // obtain pointer to this EngineClient
     EngineClient* ec = reinterpret_cast<EngineClient*>(glfwGetWindowUserPointer(window));
-    ec->command_on_resize->execute(width, height);
+
+    // set parameters
+    ec->cmdcont.get_cmd(cmd_string)->set_param("width", width)
+                                   ->set_param("height", height);
+
+    // execute command
+    ec->cmdcont.execute_cmd(cmd_string);
 }
