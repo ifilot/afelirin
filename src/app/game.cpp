@@ -31,7 +31,7 @@ Game::Game(const std::shared_ptr<Camera>& _camera) :
     MeshLoader ml;
     MeshParser mp;
 
-    mp.read_obj(AssetManager::get().get_root_directory() + "assets/meshes/gear.obj", &mesh);
+    mp.read_bz2(AssetManager::get().get_root_directory() + "assets/meshes/gear.mesh", &mesh);
     GLuint vao;
     GLuint vbo[3];
     unsigned int nr_indices;
