@@ -234,5 +234,9 @@ void Engine::bind_commands() {
     }
 
     this->engine_client->bind_command("on_resize", new EngineCommandOnResize(this->screen, this->post_processor, this->camera));
-    this->engine_client->bind_command("on_mouse_cursor", new EngineCommandOnMouseCursor(this->mouse));
+    this->engine_client->bind_command("on_mouse_cursor", new EngineCommandOnMouseCursor(this->mouse, this->camera));
+    this->engine_client->bind_command("on_key_w", new CameraCommandTranslate(this->camera, 0.1f, glm::vec3(0,0,-1)));
+    this->engine_client->bind_command("on_key_a", new CameraCommandTranslate(this->camera, 0.1f, glm::vec3(-1,0,0)));
+    this->engine_client->bind_command("on_key_s", new CameraCommandTranslate(this->camera, 0.1f, glm::vec3(0,0,1)));
+    this->engine_client->bind_command("on_key_d", new CameraCommandTranslate(this->camera, 0.1f, glm::vec3(1,0,0)));
 }

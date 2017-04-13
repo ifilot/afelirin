@@ -35,6 +35,7 @@
 #include "core/post_processor.h"
 
 #include "core/commands/engine/engine_commands.h"
+#include "core/commands/camera/camera_commands.h"
 
 #include "app/game.h"
 

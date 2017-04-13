@@ -21,5 +21,10 @@
 
 // just load all commands for the engine
 
+#ifndef _ENGINE_COMMANDS_H
+#define _ENGINE_COMMANDS_H
+
 #include "command_on_resize.h"
 #include "command_on_mouse_cursor.h"
+
+#endif //_ENGINE_COMMANDS_H

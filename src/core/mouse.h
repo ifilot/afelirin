@@ -40,7 +40,11 @@
 class Mouse : boost::noncopyable {
 private:
     glm::vec2 cur_pos;                    //!< current cursor position
+    glm::vec2 cur_pos_prev;               //!< previous cursor position
     glm::vec2 cur_pos_sw;                 //!< current cursor position with origin in SW position
+    glm::vec2 cur_pos_ctr;                //!< current cursor w.r.t. center
+    glm::vec2 cur_delta_pos;              //!< current cursor w.r.t. center
+    bool start;
 
     std::shared_ptr<Screen> screen;
 
@@ -63,6 +67,14 @@ public:
         return this->cur_pos_sw;
     }
 
+    inline const glm::vec2& get_cursor_ctr() const {
+        return this->cur_pos_ctr;
+    }
+
+    inline const glm::vec2& get_cursor_delta() const {
+        return this->cur_delta_pos;
+    }
+
     /*
      * @brief Update the current cursor position
      *
@@ -70,10 +82,22 @@ public:
      * @param[in] xpos      current y position of the cursor on the screen
      */
     inline void set_cursor(double xpos, double ypos) {
+        this->cur_pos_prev = this->cur_pos;
+
         this->cur_pos[0] = (float)xpos;
         this->cur_pos[1] = (float)ypos;
+
         this->cur_pos_sw[0] = (float)xpos;
         this->cur_pos_sw[1] = (float)this->screen->get_height() - (float)ypos;
+
+        this->cur_pos_ctr[0] = (float)xpos - (float)this->screen->get_width() / 2.0f;
+        this->cur_pos_ctr[1] = (float)ypos - (float)this->screen->get_height() / 2.0f;
+
+        if(!this->start) {
+            this->cur_delta_pos = this->cur_pos - this->cur_pos_prev;
+        } else {
+            this->start = false;
+        }
     }
 
 private:

@@ -1,5 +1,5 @@
 /**************************************************************************
- *   command_on_resize.h  --  This file is part of AFELIRIN.              *
+ *   command_on_mouse_cursor.h  --  This file is part of AFELIRIN.        *
  *                                                                        *
  *   Copyright (C) 2017, Ivo Filot                                        *
  *                                                                        *
@@ -19,51 +19,26 @@
  *                                                                        *
  **************************************************************************/
 
-/*
- * @file: command_on_resize.h
- *
- * Used in Command Design Pattern; this function is passed to the EngineClient
- * class and is executed when the screen is resized. This function removes
- * direct coupling of the EngineClient class with the Screen, Camera and
- * PostProcessor classes.
- *
- */
-
-#ifndef _ENGINE_COMMAND_ON_RESIZE
-#define _ENGINE_COMMAND_ON_RESIZE
+#ifndef _CAMERA_COMMAND_TRANSLATE
+#define _CAMERA_COMMAND_TRANSLATE
 
 #include <memory>
 
-class EngineCommandOnResize : public Command {
+class CameraCommandTranslate : public Command {
 private:
-    std::shared_ptr<Screen> screen;
-    std::shared_ptr<PostProcessor> post_processor;
     std::shared_ptr<Camera> camera;
-    GLFWwindow* m_window;       //!< pointer to the window
+    glm::vec3 direction;
 
 public:
-    EngineCommandOnResize(const std::shared_ptr<Screen> _screen,
-                    const std::shared_ptr<PostProcessor> _postprocessor,
-                    const std::shared_ptr<Camera> _camera) :
-    screen(_screen),
-    post_processor(_postprocessor),
-    camera(_camera) { }
+    CameraCommandTranslate(const std::shared_ptr<Camera> _camera,
+                           float speed,
+                           const glm::vec3& _direction) :
+    camera(_camera),
+    direction(speed * _direction) { }
 
     void execute() {
-        const int width = this->get_param<int>("width");
-        const int height = this->get_param<int>("height");
-
-        // // update screen settings
-        this->screen->set_width(width);
-        this->screen->set_height(height);
-
-        // update camera settings
-        this->camera->set_aspect_ratio(this->screen->get_aspect_ratio_resolution());
-        this->camera->update();
-
-        // update post processor
-        this->post_processor->window_reshape();
+        this->camera->translate(this->direction);
     }
 };
 
-#endif // _ENGINE_COMMAND_ON_RESIZE
+#endif // _CAMERA_COMMAND_TRANSLATE

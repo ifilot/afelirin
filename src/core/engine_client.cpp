@@ -80,6 +80,7 @@ EngineClient::EngineClient() {
 	glfwSetFramebufferSizeCallback(this->m_window, framebuffer_size_callback);
 
     // set mouse cursor position callback
+    glfwSetInputMode(this->m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetCursorPosCallback(this->m_window, mouse_cursor_callback);
 
     // set scroll callback
@@ -107,9 +108,6 @@ EngineClient::EngineClient() {
     // enable culling
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
-
-    // disable cursor (we are going to use our own)
-    //glfwSetInputMode(this->m_window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 }
 
 /**
@@ -201,7 +199,31 @@ void EngineClient::error_callback(int error, const char* description) {
  *
  */
 void EngineClient::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
+        glfwSetWindowShouldClose(window, GL_TRUE);
+        return;
+    }
 
+    // obtain pointer to this EngineClient
+    EngineClient* ec = reinterpret_cast<EngineClient*>(glfwGetWindowUserPointer(window));
+
+    switch(key) {
+        case 'W':
+            ec->cmdcont.get_cmd("on_key_w")->execute();
+        break;
+        case 'A':
+            ec->cmdcont.get_cmd("on_key_a")->execute();
+        break;
+        case 'S':
+            ec->cmdcont.get_cmd("on_key_s")->execute();
+        break;
+        case 'D':
+            ec->cmdcont.get_cmd("on_key_d")->execute();
+        break;
+        default:
+            // do nothing
+        break;
+    }
 }
 
 /**

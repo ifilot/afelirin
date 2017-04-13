@@ -38,10 +38,17 @@ Camera::Camera() {
  */
 void Camera::update() {
     this->projection = glm::infinitePerspective(45.0f, this->aspect_ratio, 0.1f);
+
+    glm::vec3 euler = glm::eulerAngles(this->orientation);
+
+
+    const glm::vec3 camera_dir = this->position + glm::rotate(this->orientation, glm::vec3(0,0,-1));
+    const glm::vec3 camera_up = glm::rotate(this->orientation, glm::vec3(0,1,0));
+
     this->view = glm::lookAt(
-                    glm::vec3(this->position),              // cam pos
-                    glm::vec3(this->position.xy(), 0.0),      // look at
-                    glm::vec3(0,1,0)               // up
+                    this->position,
+                    camera_dir,
+                    camera_up
                 );
 }
 
@@ -51,6 +58,7 @@ void Camera::update() {
  * @return      void
  */
 void Camera::translate(const glm::vec3& trans) {
+    this->position += glm::toMat3(this->orientation) * trans;
     this->update();
 }
 
@@ -62,5 +70,20 @@ void Camera::translate(const glm::vec3& trans) {
  * @return     void
  */
 void Camera::set_camera_position(const glm::vec3& _position, const glm::vec3& _up) {
+    this->update();
+}
+
+void Camera::rotate(double x, double y) {
+    static const float sensitity = 5e-4;
+
+    if(x == 0 && y == 0) {
+        return;
+    }
+
+    const glm::quat qx = glm::angleAxis((float)x * sensitity, glm::vec3(0,-1,0));
+    const glm::quat qy = glm::angleAxis((float)y * sensitity, glm::vec3(-1,0,0));
+
+    this->orientation = glm::normalize(qx * qy) * this->orientation;
+
     this->update();
 }

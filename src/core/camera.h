@@ -35,6 +35,8 @@
 #include "util/singleton_holder.h"
 #include "core/screen.h"
 
+#include <glm/gtx/string_cast.hpp>
+
 /**
  * @class Camera class
  * @brief class handling the camera
@@ -45,6 +47,7 @@ private:
     glm::mat4 view;                     //!< view matrix
 
     glm::vec3 position;                 //!< position of the camera in world space
+    glm::quat orientation;              //!< orientation of the camera
 
     float aspect_ratio;                     //!< aspect ratio of the window
 
@@ -119,6 +122,8 @@ public:
      * @return      void
      */
     void translate(const glm::vec3& trans);
+
+    void rotate(double x, double y);
 
     /**
      * @brief      set camera position and up direction

@@ -1,5 +1,5 @@
 /**************************************************************************
- *   command_on_mouse_cursor.h  --  This file is part of AFELIRIN.        *
+ *   camera_commands.h  --  This file is part of AFELIRIN.                *
  *                                                                        *
  *   Copyright (C) 2017, Ivo Filot                                        *
  *                                                                        *
@@ -19,42 +19,9 @@
  *                                                                        *
  **************************************************************************/
 
-/*
- * @file: command_on_mouse_cursor.h
- *
- * Used in Command Design Pattern; this function is passed to the EngineClient
- * class and is executed when the mouse cursor is moved.
- *
- */
+#ifndef _CAMERA_COMMANDS_H
+#define _CAMERA_COMMANDS_H
 
-#ifndef _ENGINE_COMMAND_ON_MOUSE_CURSOR
-#define _ENGINE_COMMAND_ON_MOUSE_CURSOR
+#include "command_translate.h"
 
-#include <memory>
-
-class EngineCommandOnMouseCursor : public Command {
-private:
-    std::shared_ptr<Mouse> mouse;
-    std::shared_ptr<Camera> camera;
-
-public:
-    EngineCommandOnMouseCursor(const std::shared_ptr<Mouse> _mouse,
-                               const std::shared_ptr<Camera> _camera) :
-    mouse(_mouse),
-    camera(_camera) { }
-
-    void execute() {
-        const double xpos = this->get_param<double>("xpos");
-        const double ypos = this->get_param<double>("ypos");
-
-        this->mouse->set_cursor(xpos, ypos);
-
-        const glm::vec2 cur_pos_ctr = this->mouse->get_cursor_delta();
-
-        //std::cout << cur_pos_ctr[0] << " " << cur_pos_ctr[1] << std::endl;
-
-        this->camera->rotate(cur_pos_ctr[0], cur_pos_ctr[1]);
-    }
-};
-
-#endif // _ENGINE_COMMAND_ON_MOUSE_CURSOR
+#endif //_CAMERA_COMMANDS_H
