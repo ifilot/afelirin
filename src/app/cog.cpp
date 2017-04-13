@@ -1,5 +1,5 @@
 /**************************************************************************
- *   entity.h  --  This file is part of AFELIRIN.                         *
+ *   cog.cpp  --  This file is part of AFELIRIN.                          *
  *                                                                        *
  *   Copyright (C) 2017, Ivo Filot (ivo@ivofilot.nl)                      *
  *                                                                        *
@@ -19,66 +19,19 @@
  *                                                                        *
  **************************************************************************/
 
-#ifndef _ENTITY_H
-#define _ENTITY_H
+#include "cog.h"
 
-#define GLM_FORCE_RADIANS
-#include <glm/glm.hpp>
-#include <glm/gtx/quaternion.hpp>
-#include <GL/glew.h>
+Cog::Cog(const glm::vec3& _pos, GLuint _vao, unsigned int _nr_indices) :
+    Entity(_pos, _vao, _nr_indices) {
 
-class Entity {
-protected:
-    GLuint vao;
-    unsigned int nr_indices;
+}
 
-    // position and orientation
-    glm::vec3 pos;
-    glm::quat rot;
+void Cog::update(double dt) {
+    Entity::update(dt);
+}
 
-    // angular momentum
-    glm::vec4 v_rot;
-
-    glm::vec3 color;
-
-public:
-    Entity() {}
-
-    Entity(const glm::vec3& _pos, GLuint _vao, unsigned int _nr_indices);
-
-    virtual void update(double dt);
-
-    virtual void draw() = 0;
-
-    inline void set_position(const glm::vec3& _pos) {
-        this->pos = _pos;
-    }
-
-    inline void set_color(const glm::vec3& _color) {
-        this->color = _color;
-    }
-
-    inline const glm::vec3& get_position() const {
-        return this->pos;
-    }
-
-    inline const glm::vec3& get_color() const {
-        return this->color;
-    }
-
-    inline glm::mat4 get_rotation() const {
-        return glm::toMat4(this->rot);
-    }
-
-    inline void rotate(float angle, const glm::vec3& axis) {
-        this->rot *= glm::angleAxis(angle, axis);
-    }
-
-    inline void set_angular_momentum(float velocity, const glm::vec3& axis) {
-        this->v_rot = glm::vec4(glm::normalize(axis), velocity);
-    }
-
-protected:
-};
-
-#endif //_ENTITY_H
+void Cog::draw() {
+    glBindVertexArray(this->vao);
+    glDrawElements(GL_TRIANGLES, this->nr_indices, GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0);
+}

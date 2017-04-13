@@ -1,5 +1,5 @@
 /**************************************************************************
- *   entity.h  --  This file is part of AFELIRIN.                         *
+ *   cog.h  --  This file is part of AFELIRIN.                            *
  *                                                                        *
  *   Copyright (C) 2017, Ivo Filot (ivo@ivofilot.nl)                      *
  *                                                                        *
@@ -19,66 +19,17 @@
  *                                                                        *
  **************************************************************************/
 
-#ifndef _ENTITY_H
-#define _ENTITY_H
+#include "entity.h"
 
-#define GLM_FORCE_RADIANS
-#include <glm/glm.hpp>
-#include <glm/gtx/quaternion.hpp>
-#include <GL/glew.h>
-
-class Entity {
-protected:
-    GLuint vao;
-    unsigned int nr_indices;
-
-    // position and orientation
-    glm::vec3 pos;
-    glm::quat rot;
-
-    // angular momentum
-    glm::vec4 v_rot;
-
-    glm::vec3 color;
+class Cog : public Entity {
+private:
 
 public:
-    Entity() {}
+    Cog(const glm::vec3& _pos, GLuint _vao, unsigned int _nr_indices);
 
-    Entity(const glm::vec3& _pos, GLuint _vao, unsigned int _nr_indices);
+    void update(double dt);
 
-    virtual void update(double dt);
+    void draw();
 
-    virtual void draw() = 0;
-
-    inline void set_position(const glm::vec3& _pos) {
-        this->pos = _pos;
-    }
-
-    inline void set_color(const glm::vec3& _color) {
-        this->color = _color;
-    }
-
-    inline const glm::vec3& get_position() const {
-        return this->pos;
-    }
-
-    inline const glm::vec3& get_color() const {
-        return this->color;
-    }
-
-    inline glm::mat4 get_rotation() const {
-        return glm::toMat4(this->rot);
-    }
-
-    inline void rotate(float angle, const glm::vec3& axis) {
-        this->rot *= glm::angleAxis(angle, axis);
-    }
-
-    inline void set_angular_momentum(float velocity, const glm::vec3& axis) {
-        this->v_rot = glm::vec4(glm::normalize(axis), velocity);
-    }
-
-protected:
+private:
 };
-
-#endif //_ENTITY_H

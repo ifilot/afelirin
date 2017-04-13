@@ -129,7 +129,7 @@ void Engine::run(int argc, char* argv[]) {
         if(current_time - last_time >= 1.0) {
 
             std::string sfps = boost::lexical_cast<std::string>(this->num_frames);
-            this->engine_client->set_window_title("Quadtree");
+            this->engine_client->set_window_title("AFELIRIN DEMO");
 
             // place in the function any commands that should be done every second
             this->update_second();
@@ -217,7 +217,7 @@ void Engine::post_draw() {
     glViewport(0, 0, this->screen->get_width(), this->screen->get_height());
     this->post_processor->draw();
 
-    this->font_writer->write_text(0, 50.f, 50.f, 0.f, glm::vec3(1,1,1), "Quadtree");
+    this->font_writer->write_text(0, 50.f, 50.f, 0.f, glm::vec3(1,1,1), "AFELIRIN DEMO");
 
     this->engine_client->close_frame();
 }

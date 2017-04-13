@@ -53,11 +53,11 @@ EngineClient::EngineClient() {
     if(Settings::get().get_boolean_from_keyword("settings.screen.full_screen")) {
         const unsigned int width = Settings::get().get_uint_from_keyword("settings.screen.resolution_x");
         const unsigned int height = Settings::get().get_uint_from_keyword("settings.screen.resolution_y");
-        this->m_window = glfwCreateWindow(width, height, "Netris" , NULL, NULL);
+        this->m_window = glfwCreateWindow(width, height, "AFELIRIN DEMO" , NULL, NULL);
     } else {
         GLFWmonitor* monitor = glfwGetPrimaryMonitor();
         const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-        this->m_window = glfwCreateWindow(mode->width, mode->height, "Netris" , monitor, NULL);
+        this->m_window = glfwCreateWindow(mode->width, mode->height, "AFELIRIN DEMO" , monitor, NULL);
     }
 
     // check if the window is properly constructed

@@ -1,15 +1,15 @@
 /**************************************************************************
- *   game.h  --  This file is part of OBJ2BIT.                            *
+ *   game.h  --  This file is part of AFELIRIN.                           *
  *                                                                        *
  *   Copyright (C) 2017, Ivo Filot (ivo@ivofilot.nl)                      *
  *                                                                        *
- *   OBJ2BIT is free software:                                            *
+ *   AFELIRIN is free software:                                           *
  *   you can redistribute it and/or modify it under the terms of the      *
  *   GNU General Public License as published by the Free Software         *
  *   Foundation, either version 3 of the License, or (at your option)     *
  *   any later version.                                                   *
  *                                                                        *
- *   OBJ2BIT is distributed in the hope that it will be useful,           *
+ *   AFELIRIN is distributed in the hope that it will be useful,          *
  *   but WITHOUT ANY WARRANTY; without even the implied warranty          *
  *   of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.              *
  *   See the GNU General Public License for more details.                 *
@@ -26,7 +26,7 @@
 #include <list>
 
 #include "core/shader.h"
-#include "app/entity.h"
+#include "app/cog.h"
 
 #include "core/shader_manager.h"
 #include "core/models/mesh_loader.h"
@@ -37,7 +37,7 @@ private:
     std::shared_ptr<Shader> shader;
     std::shared_ptr<Camera> camera;
 
-    std::list<Entity> entities;
+    std::vector<std::unique_ptr<Entity> > entities;
 
 
 public:
