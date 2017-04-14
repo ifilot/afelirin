@@ -35,6 +35,15 @@ Camera::Camera() :
     this->update();
 }
 
+Camera::Camera(const glm::vec3& _position) :
+    position(_position),
+    center(0.0f, 0.0f, -1.0f),
+    up(0.0f, 1.0f, 0.0f)
+{
+
+    this->update();
+}
+
 /**
  * @brief       update the camera perspective matrix
  *
@@ -53,18 +62,6 @@ void Camera::update() {
 }
 
 /**
- * @brief       translate the camera
- *
- * @param       translation vector
- *
- * @return      void
- */
-void Camera::translate(const glm::vec3& trans) {
-    this->position += this->right * trans[0] + this->up * trans[1] - this->center * trans[2];
-    this->update();
-}
-
-/**
  * @brief      set camera position and up direction
  *
  * @param      camera position
@@ -72,22 +69,5 @@ void Camera::translate(const glm::vec3& trans) {
  * @return     void
  */
 void Camera::set_camera_position(const glm::vec3& _position, const glm::vec3& _up) {
-    this->update();
-}
-
-/**
- * @brief       rotate the camera
- *
- * @param       Euler angle
- *
- * @return      void
- */
-void Camera::rotate(const glm::vec3& rot) {
-    this->center = glm::mat3(glm::rotate(rot[0], this->up)) * this->center;
-
-    this->right = glm::normalize(glm::cross(this->center, this->up));
-
-    this->center = glm::mat3(glm::rotate(rot[1], this->right)) * this->center;
-
     this->update();
 }

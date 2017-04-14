@@ -168,6 +168,10 @@ public:
         this->cmdcont.add_cmd(name, _cmd);
     }
 
+    Command* get_command(const std::string& name) {
+        return this->cmdcont.get_cmd(name)->get();
+    }
+
     inline void call_command(const std::string& name) {
         this->cmdcont.get_cmd(name)->execute();
     }

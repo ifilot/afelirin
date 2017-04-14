@@ -35,14 +35,12 @@
 #include "util/singleton_holder.h"
 #include "core/screen.h"
 
-#include <glm/gtx/euler_angles.hpp>
-
 /**
  * @class Camera class
  * @brief class handling the camera
  */
 class Camera : private boost::noncopyable {
-private:
+protected:
     glm::mat4 projection;               //!< perspective matrix
     glm::mat4 view;                     //!< view matrix
 
@@ -57,6 +55,8 @@ private:
 
 public:
     Camera();
+
+    Camera(const glm::vec3& _position);
 
     //*************************
     // GETTERS
@@ -145,7 +145,7 @@ public:
      *
      * @return      void
      */
-    void translate(const glm::vec3& trans);
+    virtual void translate(const glm::vec3& trans) = 0;
 
     /**
      * @brief       rotate the camera
@@ -154,7 +154,7 @@ public:
      *
      * @return      void
      */
-    void rotate(const glm::vec3& trans);
+    virtual void rotate(const glm::vec3& trans) = 0;
 
     /**
      * @brief      set camera position and up direction

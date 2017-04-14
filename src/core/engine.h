@@ -30,6 +30,7 @@
 #include "core/mouse.h"
 #include "core/shader.h"
 #include "core/screen.h"
+#include "core/camera_fps.h"
 #include "core/font_writer.h"
 #include "core/light.h"
 #include "core/post_processor.h"

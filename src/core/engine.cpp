@@ -56,7 +56,7 @@ Engine::Engine():
     this->post_processor->window_reshape();
 
     // load camera
-    this->camera = std::shared_ptr<Camera>(new Camera());
+    this->camera = std::shared_ptr<Camera>(reinterpret_cast<Camera*>(new CameraFPS(glm::vec3(0,0,15))));
 
     // Load font writer and fonts
     this->font_writer = std::shared_ptr<FontWriter>(new FontWriter(this->screen));
@@ -169,22 +169,22 @@ void Engine::update(double dt) {
     GLFWwindow* window = this->engine_client->get_window_ptr();
 
     if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        this->engine_client->call_command("on_key_w");
+        this->engine_client->get_command("on_key_w")->set_param("dt", dt)->execute();
     }
     if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-        this->engine_client->call_command("on_key_a");
+        this->engine_client->get_command("on_key_a")->set_param("dt", dt)->execute();
     }
     if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-        this->engine_client->call_command("on_key_s");
+        this->engine_client->get_command("on_key_s")->set_param("dt", dt)->execute();
     }
     if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-        this->engine_client->call_command("on_key_d");
+        this->engine_client->get_command("on_key_d")->set_param("dt", dt)->execute();
     }
     if(glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-        this->engine_client->call_command("on_key_space");
+        this->engine_client->get_command("on_key_space")->set_param("dt", dt)->execute();
     }
     if(glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
-        this->engine_client->call_command("on_key_ctrl");
+        this->engine_client->get_command("on_key_ctrl")->set_param("dt", dt)->execute();
     }
 
     this->game->update(dt);
@@ -260,10 +260,10 @@ void Engine::bind_commands() {
 
     this->engine_client->bind_command("on_resize", new EngineCommandOnResize(this->screen, this->post_processor, this->camera));
     this->engine_client->bind_command("on_mouse_cursor", new EngineCommandOnMouseCursor(this->mouse, this->camera));
-    this->engine_client->bind_command("on_key_w", new CameraCommandTranslate(this->camera, 0.1f, glm::vec3(0,0,-1)));
-    this->engine_client->bind_command("on_key_a", new CameraCommandTranslate(this->camera, 0.1f, glm::vec3(-1,0,0)));
-    this->engine_client->bind_command("on_key_s", new CameraCommandTranslate(this->camera, 0.1f, glm::vec3(0,0,1)));
-    this->engine_client->bind_command("on_key_d", new CameraCommandTranslate(this->camera, 0.1f, glm::vec3(1,0,0)));
-    this->engine_client->bind_command("on_key_space", new CameraCommandTranslate(this->camera, 0.1f, glm::vec3(0,1,0)));
-    this->engine_client->bind_command("on_key_ctrl", new CameraCommandTranslate(this->camera, 0.1f, glm::vec3(0,-1,0)));
+    this->engine_client->bind_command("on_key_w", new CameraCommandTranslate(this->camera, 3.0f, glm::vec3(0,0,-1)));
+    this->engine_client->bind_command("on_key_a", new CameraCommandTranslate(this->camera, 3.0f, glm::vec3(-1,0,0)));
+    this->engine_client->bind_command("on_key_s", new CameraCommandTranslate(this->camera, 3.0f, glm::vec3(0,0,1)));
+    this->engine_client->bind_command("on_key_d", new CameraCommandTranslate(this->camera, 3.0f, glm::vec3(1,0,0)));
+    this->engine_client->bind_command("on_key_space", new CameraCommandTranslate(this->camera, 3.0f, glm::vec3(0,1,0)));
+    this->engine_client->bind_command("on_key_ctrl", new CameraCommandTranslate(this->camera, 3.0f, glm::vec3(0,-1,0)));
 }

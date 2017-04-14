@@ -45,6 +45,8 @@ public:
     camera(_camera) { }
 
     void execute() {
+        static const float c = 1e-3f;   //!< movement speed
+
         const double xpos = this->get_param<double>("xpos");
         const double ypos = this->get_param<double>("ypos");
 
@@ -54,7 +56,7 @@ public:
 
         const glm::vec3 trans(-cur_pos_ctr[0], cur_pos_ctr[1], 0.0f);
 
-        this->camera->rotate(trans * 1e-3f);
+        this->camera->rotate(trans * c);
     }
 };
 

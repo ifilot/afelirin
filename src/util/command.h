@@ -34,13 +34,15 @@ public:
     virtual ~Command() {}
     virtual void execute() = 0;
 
-    void set_param(const std::string& name, const boost::any& value) {
+    Command* set_param(const std::string& name, const boost::any& value) {
         auto search = this->params.find(name);
         if(search != this->params.end()) {
             search->second = value;
         } else {
             params.emplace(name, value);
         }
+
+        return this;
     }
 
     template<typename T>

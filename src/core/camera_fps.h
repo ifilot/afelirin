@@ -1,5 +1,5 @@
 /**************************************************************************
- *   command_on_mouse_cursor.h  --  This file is part of AFELIRIN.        *
+ *   camera_fps.h  --  This file is part of AFELIRIN.                     *
  *                                                                        *
  *   Copyright (C) 2017, Ivo Filot                                        *
  *                                                                        *
@@ -19,30 +19,34 @@
  *                                                                        *
  **************************************************************************/
 
-#ifndef _CAMERA_COMMAND_TRANSLATE
-#define _CAMERA_COMMAND_TRANSLATE
+#ifndef _CAMERA_FPS_H
+#define _CAMERA_FPS_H
 
-#include <memory>
+#include "camera.h"
 
-class CameraCommandTranslate : public Command {
-private:
-    std::shared_ptr<Camera> camera;
-    float speed;
-    glm::vec3 direction;
-
+class CameraFPS : public Camera {
 public:
-    CameraCommandTranslate(const std::shared_ptr<Camera> _camera,
-                           float _speed,
-                           const glm::vec3& _direction) :
-    camera(_camera),
-    speed(_speed),
-    direction(speed * _direction) { }
+    CameraFPS();
 
-    void execute() {
-        const float dt = (float)this->get_param<double>("dt");
+    CameraFPS(const glm::vec3& _position);
 
-        this->camera->translate(this->direction * dt * this->speed);
-    }
+    /**
+     * @brief       translate the camera
+     *
+     * @param       translation vector
+     *
+     * @return      void
+     */
+    void translate(const glm::vec3& trans);
+
+    /**
+     * @brief       rotate the camera
+     *
+     * @param       Euler angle
+     *
+     * @return      void
+     */
+    void rotate(const glm::vec3& trans);
 };
 
-#endif // _CAMERA_COMMAND_TRANSLATE
+#endif //_CAMERA_FPS_H

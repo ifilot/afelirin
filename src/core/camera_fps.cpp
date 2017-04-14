@@ -1,5 +1,5 @@
 /**************************************************************************
- *   command_on_mouse_cursor.h  --  This file is part of AFELIRIN.        *
+ *   camera_fps.cpp  --  This file is part of AFELIRIN.                   *
  *                                                                        *
  *   Copyright (C) 2017, Ivo Filot                                        *
  *                                                                        *
@@ -19,30 +19,38 @@
  *                                                                        *
  **************************************************************************/
 
-#ifndef _CAMERA_COMMAND_TRANSLATE
-#define _CAMERA_COMMAND_TRANSLATE
+#include "camera_fps.h"
 
-#include <memory>
+CameraFPS::CameraFPS() {}
 
-class CameraCommandTranslate : public Command {
-private:
-    std::shared_ptr<Camera> camera;
-    float speed;
-    glm::vec3 direction;
+CameraFPS::CameraFPS(const glm::vec3& _position) :
+    Camera(_position) {}
 
-public:
-    CameraCommandTranslate(const std::shared_ptr<Camera> _camera,
-                           float _speed,
-                           const glm::vec3& _direction) :
-    camera(_camera),
-    speed(_speed),
-    direction(speed * _direction) { }
+/**
+ * @brief       translate the camera
+ *
+ * @param       translation vector
+ *
+ * @return      void
+ */
+void CameraFPS::translate(const glm::vec3& trans) {
+    this->position += this->right * trans[0] + this->up * trans[1] - glm::normalize(glm::vec3(this->center.x, 0.0f, this->center.z)) * trans[2];
+    this->update();
+}
 
-    void execute() {
-        const float dt = (float)this->get_param<double>("dt");
+/**
+ * @brief       rotate the camera
+ *
+ * @param       Euler angle
+ *
+ * @return      void
+ */
+void CameraFPS::rotate(const glm::vec3& rot) {
+    this->center = glm::mat3(glm::rotate(rot[0], this->up)) * this->center;
 
-        this->camera->translate(this->direction * dt * this->speed);
-    }
-};
+    this->right = glm::normalize(glm::cross(this->center, this->up));
 
-#endif // _CAMERA_COMMAND_TRANSLATE
+    this->center = glm::mat3(glm::rotate(rot[1], this->right)) * this->center;
+
+    this->update();
+}
