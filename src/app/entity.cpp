@@ -24,7 +24,8 @@
 Entity::Entity(const glm::vec3& _pos, GLuint _vao, unsigned int _nr_indices) :
     pos(_pos),
     vao(_vao),
-    nr_indices(_nr_indices) {
+    nr_indices(_nr_indices),
+    scale(1.0f, 1.0f, 1.0f) {
 
     this->color = glm::vec3(1,1,1);
 }

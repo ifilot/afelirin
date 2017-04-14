@@ -25,6 +25,7 @@
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 #include <glm/gtx/quaternion.hpp>
+#include <glm/gtx/transform.hpp>
 #include <GL/glew.h>
 
 class Entity {
@@ -35,6 +36,7 @@ protected:
     // position and orientation
     glm::vec3 pos;
     glm::quat rot;
+    glm::vec3 scale;
 
     // angular momentum
     glm::vec4 v_rot;
@@ -54,6 +56,10 @@ public:
         this->pos = _pos;
     }
 
+    inline void set_scale(const glm::vec3& _scale) {
+        this->scale = _scale;
+    }
+
     inline void set_color(const glm::vec3& _color) {
         this->color = _color;
     }
@@ -68,6 +74,10 @@ public:
 
     inline glm::mat4 get_rotation() const {
         return glm::toMat4(this->rot);
+    }
+
+    inline glm::mat4 get_scale() const {
+        return glm::scale(this->scale);
     }
 
     inline void rotate(float angle, const glm::vec3& axis) {

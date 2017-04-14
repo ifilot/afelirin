@@ -1,5 +1,5 @@
 /**************************************************************************
- *   game.h  --  This file is part of AFELIRIN.                           *
+ *   cube_inward.h  --  This file is part of AFELIRIN.                    *
  *                                                                        *
  *   Copyright (C) 2017, Ivo Filot (ivo@ivofilot.nl)                      *
  *                                                                        *
@@ -19,39 +19,17 @@
  *                                                                        *
  **************************************************************************/
 
-#ifndef _GAME_H
-#define _GAME_H
+#include "entity.h"
 
-#include <memory>
-#include <list>
-
-#include "core/shader.h"
-#include "app/cog.h"
-#include "app/cube_inward.h"
-
-#include "core/shader_manager.h"
-#include "core/models/mesh_loader.h"
-#include "core/models/mesh_parser.h"
-
-class Game {
+class Cube : public Entity {
 private:
-    std::shared_ptr<Shader> shader;
-    std::shared_ptr<Camera> camera;
-
-    std::vector<std::unique_ptr<Entity> > entities;
-
 
 public:
-    Game(const std::shared_ptr<Camera>& _camera);
-
-    void draw();
+    Cube(const glm::vec3& _pos, GLuint _vao, unsigned int _nr_indices);
 
     void update(double dt);
 
-    ~Game() {};
+    void draw();
 
 private:
-
 };
-
-#endif //_GAME_H

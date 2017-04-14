@@ -27,24 +27,41 @@ Game::Game(const std::shared_ptr<Camera>& _camera) :
     // create shader object here
     this->shader = ShaderManager::get().get_shader("model_shader");
 
-    Mesh mesh;
+    Mesh mesh, mesh_cube, mesh_sphere;
     MeshLoader ml;
     MeshParser mp;
 
     mp.read_bz2(AssetManager::get().get_root_directory() + "assets/meshes/gear.mesh", &mesh);
-    GLuint vao;
-    GLuint vbo[3];
-    unsigned int nr_indices;
+    mp.read_bz2(AssetManager::get().get_root_directory() + "assets/meshes/cube_inward.mesh", &mesh_cube);
+    mp.read_bz2(AssetManager::get().get_root_directory() + "assets/meshes/sphere.mesh", &mesh_sphere);
+    GLuint vao1;
+    GLuint vbo1[3];
+    GLuint vao2;
+    GLuint vbo2[3];
+    GLuint vao3;
+    GLuint vbo3[3];
+    unsigned int nr_indices1;
+    unsigned int nr_indices2;
+    unsigned int nr_indices3;
 
-    ml.load_mesh(&vao, &vbo[0], &nr_indices, &mesh);
+    ml.load_mesh(&vao1, &vbo1[0], &nr_indices1, &mesh);
+    ml.load_mesh(&vao2, &vbo2[0], &nr_indices2, &mesh_cube);
+    ml.load_mesh(&vao3, &vbo3[0], &nr_indices3, &mesh_sphere);
 
-    this->entities.emplace_back(reinterpret_cast<Entity*>(new Cog(glm::vec3(-.70f,-.70f,0), vao, nr_indices)));
+    this->entities.emplace_back(reinterpret_cast<Entity*>(new Cog(glm::vec3(-2.8f,-2.8f,0), vao1, nr_indices1)));
     this->entities.back()->set_color(glm::vec3(1,0,0));
+    this->entities.back()->set_scale(glm::vec3(4.0f, 4.0f, 4.0f));
     this->entities.back()->set_angular_momentum(glm::radians(360.0f / 3.0f), glm::vec3(0,0,1));
-    this->entities.emplace_back(reinterpret_cast<Entity*>(new Cog(glm::vec3(.70f , .70f,0), vao, nr_indices)));
+    this->entities.emplace_back(reinterpret_cast<Entity*>(new Cog(glm::vec3(2.8f , 2.8f,0), vao1, nr_indices1)));
     this->entities.back()->set_color(glm::vec3(0,1,0));
     this->entities.back()->rotate(2.0f * M_PI / 24.0f, glm::vec3(0,0,1));
+    this->entities.back()->set_scale(glm::vec3(4.0f, 4.0f, 4.0f));
     this->entities.back()->set_angular_momentum(-glm::radians(360.0f / 3.0f), glm::vec3(0,0,1));
+    this->entities.emplace_back(reinterpret_cast<Entity*>(new Cube(glm::vec3(0.0f, 0.0f, 0.0f), vao2, nr_indices2)));
+    this->entities.back()->set_color(glm::vec3(0,0,1));
+    this->entities.back()->set_scale(glm::vec3(10.0f,10.0f,10.0f));
+    this->entities.emplace_back(reinterpret_cast<Entity*>(new Cube(glm::vec3(0.0f, 8.0f, 0.0f), vao3, nr_indices3)));
+    this->entities.back()->set_color(glm::vec3(1,1,0));
 }
 
 void Game::draw() {
@@ -57,7 +74,7 @@ void Game::draw() {
     for(auto& entity : this->entities) {
         const glm::mat4 trans = glm::translate(entity->get_position());
         const glm::mat4 rot = entity->get_rotation();
-        const glm::mat4 scale = glm::mat4(1.0f);
+        const glm::mat4 scale = entity->get_scale();
         const glm::mat4 model = trans * rot * scale;
         const glm::mat4 mvp = projection * view * model;
 

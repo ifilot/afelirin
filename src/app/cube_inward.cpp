@@ -1,5 +1,5 @@
 /**************************************************************************
- *   game.h  --  This file is part of AFELIRIN.                           *
+ *   cube_inward.cpp  --  This file is part of AFELIRIN.                  *
  *                                                                        *
  *   Copyright (C) 2017, Ivo Filot (ivo@ivofilot.nl)                      *
  *                                                                        *
@@ -19,39 +19,19 @@
  *                                                                        *
  **************************************************************************/
 
-#ifndef _GAME_H
-#define _GAME_H
+#include "cube_inward.h"
 
-#include <memory>
-#include <list>
+Cube::Cube(const glm::vec3& _pos, GLuint _vao, unsigned int _nr_indices) :
+    Entity(_pos, _vao, _nr_indices) {
 
-#include "core/shader.h"
-#include "app/cog.h"
-#include "app/cube_inward.h"
+}
 
-#include "core/shader_manager.h"
-#include "core/models/mesh_loader.h"
-#include "core/models/mesh_parser.h"
+void Cube::update(double dt) {
+    Entity::update(dt);
+}
 
-class Game {
-private:
-    std::shared_ptr<Shader> shader;
-    std::shared_ptr<Camera> camera;
-
-    std::vector<std::unique_ptr<Entity> > entities;
-
-
-public:
-    Game(const std::shared_ptr<Camera>& _camera);
-
-    void draw();
-
-    void update(double dt);
-
-    ~Game() {};
-
-private:
-
-};
-
-#endif //_GAME_H
+void Cube::draw() {
+    glBindVertexArray(this->vao);
+    glDrawElements(GL_TRIANGLES, this->nr_indices, GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0);
+}

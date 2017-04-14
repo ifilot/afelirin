@@ -83,12 +83,11 @@ void Camera::set_camera_position(const glm::vec3& _position, const glm::vec3& _u
  * @return      void
  */
 void Camera::rotate(const glm::vec3& rot) {
-    // calculate rotation matrix
-    this->rotmat *= glm::mat3(glm::eulerAngleYXZ(rot[0], rot[1], 0.0f));
+    this->center = glm::mat3(glm::rotate(rot[0], this->up)) * this->center;
 
-    this->center = glm::normalize(rotmat * glm::vec3(0,0,-1));
-    this->up = glm::normalize(rotmat * glm::vec3(0,1,0));
     this->right = glm::normalize(glm::cross(this->center, this->up));
+
+    this->center = glm::mat3(glm::rotate(rot[1], this->right)) * this->center;
 
     this->update();
 }
