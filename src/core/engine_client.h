@@ -161,11 +161,15 @@ public:
     static void char_callback(GLFWwindow* window, unsigned int key);
 
     //---------------------------------------------
-    // COMMAND SETTERS
+    // COMMAND FUNCTIONS
     //---------------------------------------------
 
     inline void bind_command(const std::string& name, Command* _cmd) {
         this->cmdcont.add_cmd(name, _cmd);
+    }
+
+    inline void call_command(const std::string& name) {
+        this->cmdcont.get_cmd(name)->execute();
     }
 };
 

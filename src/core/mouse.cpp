@@ -27,5 +27,5 @@
 Mouse::Mouse(const std::shared_ptr<Screen>& _screen) :
     screen(_screen)
     {
-        bool start = true;
+        this->start = true;
 }

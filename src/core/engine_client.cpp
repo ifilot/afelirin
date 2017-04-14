@@ -206,24 +206,6 @@ void EngineClient::key_callback(GLFWwindow* window, int key, int scancode, int a
 
     // obtain pointer to this EngineClient
     EngineClient* ec = reinterpret_cast<EngineClient*>(glfwGetWindowUserPointer(window));
-
-    switch(key) {
-        case 'W':
-            ec->cmdcont.get_cmd("on_key_w")->execute();
-        break;
-        case 'A':
-            ec->cmdcont.get_cmd("on_key_a")->execute();
-        break;
-        case 'S':
-            ec->cmdcont.get_cmd("on_key_s")->execute();
-        break;
-        case 'D':
-            ec->cmdcont.get_cmd("on_key_d")->execute();
-        break;
-        default:
-            // do nothing
-        break;
-    }
 }
 
 /**

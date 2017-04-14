@@ -35,7 +35,7 @@
 #include "util/singleton_holder.h"
 #include "core/screen.h"
 
-#include <glm/gtx/string_cast.hpp>
+#include <glm/gtx/euler_angles.hpp>
 
 /**
  * @class Camera class
@@ -47,7 +47,11 @@ private:
     glm::mat4 view;                     //!< view matrix
 
     glm::vec3 position;                 //!< position of the camera in world space
-    glm::quat orientation;              //!< orientation of the camera
+    glm::vec3 up;                       //!< up direction of the camera
+    glm::vec3 center;                   //!< center direction of the camera
+    glm::vec3 right;                    //!< right direction of the camera
+
+    glm::mat3 rotmat;
 
     float aspect_ratio;                     //!< aspect ratio of the window
 
@@ -85,6 +89,24 @@ public:
         return this->position;
     }
 
+    /**
+     * @brief       get current camera center direction
+     *
+     * @return      position
+     */
+    inline const glm::vec3& get_center() const {
+        return this->center;
+    }
+
+    /**
+     * @brief       get current camera up direction
+     *
+     * @return      position
+     */
+    inline const glm::vec3& get_up() const {
+        return this->up;
+    }
+
     //*************************
     // SETTERS
     //*************************
@@ -117,13 +139,22 @@ public:
     void update();
 
     /**
-     * @brief       translate the camera in the clock-wise direction
+     * @brief       translate the camera
+     *
+     * @param       translation vector
      *
      * @return      void
      */
     void translate(const glm::vec3& trans);
 
-    void rotate(double x, double y);
+    /**
+     * @brief       rotate the camera
+     *
+     * @param       Euler angle
+     *
+     * @return      void
+     */
+    void rotate(const glm::vec3& trans);
 
     /**
      * @brief      set camera position and up direction

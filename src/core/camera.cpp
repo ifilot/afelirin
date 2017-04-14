@@ -26,8 +26,12 @@
  *
  * @return      camera instance
  */
-Camera::Camera() {
-    this->position = glm::vec3(0.0f, 0.0f, 5.0f);
+Camera::Camera() :
+    position(0.0f, 0.0f, 5.0f),
+    center(0.0f, 0.0f, -1.0f),
+    up(0.0f, 1.0f, 0.0f)
+{
+
     this->update();
 }
 
@@ -37,28 +41,26 @@ Camera::Camera() {
  * @return      void
  */
 void Camera::update() {
+    // calculate projection
     this->projection = glm::infinitePerspective(45.0f, this->aspect_ratio, 0.1f);
 
-    glm::vec3 euler = glm::eulerAngles(this->orientation);
-
-
-    const glm::vec3 camera_dir = this->position + glm::rotate(this->orientation, glm::vec3(0,0,-1));
-    const glm::vec3 camera_up = glm::rotate(this->orientation, glm::vec3(0,1,0));
-
+    // calculate view matrix
     this->view = glm::lookAt(
                     this->position,
-                    camera_dir,
-                    camera_up
+                    this->position + this->center,
+                    this->up
                 );
 }
 
 /**
- * @brief       translate the camera in the clock-wise direction
+ * @brief       translate the camera
+ *
+ * @param       translation vector
  *
  * @return      void
  */
 void Camera::translate(const glm::vec3& trans) {
-    this->position += glm::toMat3(this->orientation) * trans;
+    this->position += this->right * trans[0] + this->up * trans[1] - this->center * trans[2];
     this->update();
 }
 
@@ -73,17 +75,20 @@ void Camera::set_camera_position(const glm::vec3& _position, const glm::vec3& _u
     this->update();
 }
 
-void Camera::rotate(double x, double y) {
-    static const float sensitity = 5e-4;
+/**
+ * @brief       rotate the camera
+ *
+ * @param       Euler angle
+ *
+ * @return      void
+ */
+void Camera::rotate(const glm::vec3& rot) {
+    // calculate rotation matrix
+    this->rotmat *= glm::mat3(glm::eulerAngleYXZ(rot[0], rot[1], 0.0f));
 
-    if(x == 0 && y == 0) {
-        return;
-    }
-
-    const glm::quat qx = glm::angleAxis((float)x * sensitity, glm::vec3(0,-1,0));
-    const glm::quat qy = glm::angleAxis((float)y * sensitity, glm::vec3(-1,0,0));
-
-    this->orientation = glm::normalize(qx * qy) * this->orientation;
+    this->center = glm::normalize(rotmat * glm::vec3(0,0,-1));
+    this->up = glm::normalize(rotmat * glm::vec3(0,1,0));
+    this->right = glm::normalize(glm::cross(this->center, this->up));
 
     this->update();
 }

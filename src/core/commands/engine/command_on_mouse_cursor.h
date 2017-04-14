@@ -31,6 +31,7 @@
 #define _ENGINE_COMMAND_ON_MOUSE_CURSOR
 
 #include <memory>
+#include <glm/gtx/string_cast.hpp>
 
 class EngineCommandOnMouseCursor : public Command {
 private:
@@ -51,9 +52,9 @@ public:
 
         const glm::vec2 cur_pos_ctr = this->mouse->get_cursor_delta();
 
-        //std::cout << cur_pos_ctr[0] << " " << cur_pos_ctr[1] << std::endl;
+        const glm::vec3 trans(-cur_pos_ctr[0], cur_pos_ctr[1], 0.0f);
 
-        this->camera->rotate(cur_pos_ctr[0], cur_pos_ctr[1]);
+        this->camera->rotate(trans * 1e-3f);
     }
 };
 

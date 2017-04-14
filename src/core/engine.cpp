@@ -165,6 +165,28 @@ void Engine::run(int argc, char* argv[]) {
  * @param dt Time integration constant
  */
 void Engine::update(double dt) {
+
+    GLFWwindow* window = this->engine_client->get_window_ptr();
+
+    if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+        this->engine_client->call_command("on_key_w");
+    }
+    if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+        this->engine_client->call_command("on_key_a");
+    }
+    if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+        this->engine_client->call_command("on_key_s");
+    }
+    if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+        this->engine_client->call_command("on_key_d");
+    }
+    if(glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+        this->engine_client->call_command("on_key_space");
+    }
+    if(glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
+        this->engine_client->call_command("on_key_ctrl");
+    }
+
     this->game->update(dt);
 }
 
@@ -218,6 +240,9 @@ void Engine::post_draw() {
     this->post_processor->draw();
 
     this->font_writer->write_text(0, 50.f, 50.f, 0.f, glm::vec3(1,1,1), "AFELIRIN DEMO");
+    this->font_writer->write_text(0, 500.f, 150.f, 0.f, glm::vec3(1,1,1), glm::to_string(this->camera->get_position()));
+    this->font_writer->write_text(0, 500.f, 100.f, 0.f, glm::vec3(1,1,1), glm::to_string(this->camera->get_center()));
+    this->font_writer->write_text(0, 500.f, 50.f, 0.f, glm::vec3(1,1,1), glm::to_string(this->camera->get_up()));
 
     this->engine_client->close_frame();
 }
@@ -239,4 +264,6 @@ void Engine::bind_commands() {
     this->engine_client->bind_command("on_key_a", new CameraCommandTranslate(this->camera, 0.1f, glm::vec3(-1,0,0)));
     this->engine_client->bind_command("on_key_s", new CameraCommandTranslate(this->camera, 0.1f, glm::vec3(0,0,1)));
     this->engine_client->bind_command("on_key_d", new CameraCommandTranslate(this->camera, 0.1f, glm::vec3(1,0,0)));
+    this->engine_client->bind_command("on_key_space", new CameraCommandTranslate(this->camera, 0.1f, glm::vec3(0,1,0)));
+    this->engine_client->bind_command("on_key_ctrl", new CameraCommandTranslate(this->camera, 0.1f, glm::vec3(0,-1,0)));
 }

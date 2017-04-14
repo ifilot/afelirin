@@ -96,6 +96,7 @@ public:
         if(!this->start) {
             this->cur_delta_pos = this->cur_pos - this->cur_pos_prev;
         } else {
+            this->cur_delta_pos = glm::vec2(0.0f, 0.0f);
             this->start = false;
         }
     }
