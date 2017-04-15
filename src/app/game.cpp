@@ -25,7 +25,7 @@ Game::Game(const std::shared_ptr<Camera>& _camera) :
     camera(_camera) {
 
     // create shader object here
-    this->shader = ShaderManager::get().get_shader("model_shader");
+    this->shader = ShaderManager::get().get_shader("model_uv_shader");
 
     this->entities.emplace_back(reinterpret_cast<Entity*>(new Cog(glm::vec3(-2.8f,-2.8f,0), this->mf.get_vao("gear"), this->mf.get_nr_indices("gear"))));
     this->entities.back()->set_color(glm::vec3(1,0,0));
@@ -36,19 +36,18 @@ Game::Game(const std::shared_ptr<Camera>& _camera) :
     this->entities.back()->rotate(2.0f * M_PI / 24.0f, glm::vec3(0,0,1));
     this->entities.back()->set_scale(glm::vec3(4.0f, 4.0f, 4.0f));
     this->entities.back()->set_angular_momentum(-glm::radians(360.0f / 3.0f), glm::vec3(0,0,1));
-    this->entities.emplace_back(reinterpret_cast<Entity*>(new Cube(glm::vec3(0.0f, 0.0f, 0.0f), this->mf.get_vao("cube_inward"), this->mf.get_nr_indices("cube_inward"))));
-    this->entities.back()->set_color(glm::vec3(0,0,1));
-    this->entities.back()->set_scale(glm::vec3(10.0f,10.0f,10.0f));
-    this->entities.emplace_back(reinterpret_cast<Entity*>(new Cube(glm::vec3(0.0f, 8.0f, 0.0f), this->mf.get_vao("sphere"), this->mf.get_nr_indices("sphere"))));
-    this->entities.back()->set_color(glm::vec3(1,1,0));
 }
 
 void Game::draw() {
     this->shader->link_shader();
 
+    glActiveTexture(GL_TEXTURE1);
+    GLuint tid = tf.get_texture("color_grid");
+    glBindTexture(GL_TEXTURE_2D, tid);
     const glm::mat4 projection = this->camera->get_projection();
     const glm::mat4 view = this->camera->get_view();
     this->shader->set_uniform("view", &view[0][0]);
+    this->shader->set_uniform("tex", 1);
 
     for(auto& entity : this->entities) {
         const glm::mat4 trans = glm::translate(entity->get_position());
@@ -59,11 +58,12 @@ void Game::draw() {
 
         this->shader->set_uniform("model", &model[0][0]);
         this->shader->set_uniform("mvp", &mvp[0][0]);
-        this->shader->set_uniform("color", &entity->get_color());
 
         entity->draw();
     }
 
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glActiveTexture(GL_TEXTURE0);
     this->shader->unlink_shader();
 }
 

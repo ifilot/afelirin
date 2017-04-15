@@ -1,15 +1,15 @@
 /**************************************************************************
- *   game.h  --  This file is part of AFELIRIN.                           *
+ *   mesh_uv.h  --  This file is part of OBJ2BIT.                         *
  *                                                                        *
  *   Copyright (C) 2017, Ivo Filot (ivo@ivofilot.nl)                      *
  *                                                                        *
- *   AFELIRIN is free software:                                           *
+ *   OBJ2BIT is free software:                                            *
  *   you can redistribute it and/or modify it under the terms of the      *
  *   GNU General Public License as published by the Free Software         *
  *   Foundation, either version 3 of the License, or (at your option)     *
  *   any later version.                                                   *
  *                                                                        *
- *   AFELIRIN is distributed in the hope that it will be useful,          *
+ *   OBJ2BIT is distributed in the hope that it will be useful,           *
  *   but WITHOUT ANY WARRANTY; without even the implied warranty          *
  *   of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.              *
  *   See the GNU General Public License for more details.                 *
@@ -19,41 +19,30 @@
  *                                                                        *
  **************************************************************************/
 
-#ifndef _GAME_H
-#define _GAME_H
+#ifndef _MESH_UV
+#define _MESH_UV
 
-#include <memory>
-#include <list>
+#include "mesh_base.h"
 
-#include "core/shader.h"
-#include "app/cog.h"
-#include "app/cube_inward.h"
-
-#include "core/shader_manager.h"
-#include "core/models/mesh_factory.h"
-#include "core/models/texture_factory.h"
-
-class Game {
+class MeshUV : public MeshBase {
 private:
-    std::shared_ptr<Shader> shader;
-    std::shared_ptr<Camera> camera;
-    MeshFactory mf;
-    TextureFactory tf;
-
-    std::vector<std::unique_ptr<Entity> > entities;
-
+    std::vector<glm::vec2> uvs;
 
 public:
-    Game(const std::shared_ptr<Camera>& _camera);
+    MeshUV();
 
-    void draw();
+    virtual void add_vertex_ptn(uint32_t idx, const glm::vec3& pos, const glm::vec2& uv, const glm::vec3& normal);
 
-    void update(double dt);
+    virtual void add_content(const std::vector<glm::vec3>& _vertices,
+                             const std::vector<glm::vec2>& _uvs,
+                             const std::vector<glm::vec3>& _normals,
+                             const std::vector<unsigned int>& _indices);
 
-    ~Game() {};
+    inline const std::vector<glm::vec2>& get_uvs() const {
+        return this->uvs;
+    }
 
 private:
-
 };
 
-#endif //_GAME_H
+#endif //_MESH_UV

@@ -22,7 +22,7 @@
 #include "mesh_factory.h"
 
 MeshFactory::VertexBuffer::VertexBuffer() {
-    this->mesh = new Mesh();
+    this->mesh = new MeshBase();
 }
 
 MeshFactory::VertexBuffer::~VertexBuffer() {
@@ -49,7 +49,7 @@ void MeshFactory::get_mesh_objects(const std::string& name, GLuint* vao, unsigne
 void MeshFactory::load_mesh(const std::string& name) {
     VertexBuffer* vb = new VertexBuffer();
 
-    this->mp.read_bz2(AssetManager::get().get_root_directory() + "assets/meshes/" + name + ".mesh", vb->mesh);
+    vb->mesh = this->mp.read_bz2(AssetManager::get().get_root_directory() + "assets/meshes/" + name + ".mesh");
     this->ml.load_mesh(&vb->vao, &vb->vbo[0], &vb->nr_indices, vb->mesh);
 
     this->meshes.emplace(name, *vb);

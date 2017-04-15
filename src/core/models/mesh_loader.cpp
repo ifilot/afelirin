@@ -21,38 +21,57 @@
 
 #include "mesh_loader.h"
 
-void MeshLoader::load_mesh(GLuint* vao, GLuint* vbo, unsigned int* nr_indices, Mesh* mesh) {
+void MeshLoader::load_mesh(GLuint* vao, GLuint* vbo, unsigned int* nr_indices, MeshBase* mesh) {
 
     // generate a vertex array object and store it in the pointer
     glGenVertexArrays(1, vao);
     glBindVertexArray(*vao);
 
     // generate a number of buffers (blocks of data on the GPU)
-    glGenBuffers(3, vbo);
+    if(mesh->get_type() == MeshBase::MESH_UV) {
+        glGenBuffers(4, vbo);
+    } else {
+        glGenBuffers(3, vbo);
+    }
+    unsigned int vbo_id = 0;
 
     /*
      * POSITIONS
      */
 
-    glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo[vbo_id]);
     glBufferData(GL_ARRAY_BUFFER, mesh->get_vertices().size() * 3 * sizeof(float), &mesh->get_vertices()[0][0], GL_STATIC_DRAW);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(vbo_id);
+    glVertexAttribPointer(vbo_id, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    vbo_id++;
+
+    /*
+     * UVS
+     */
+
+    if(mesh->get_type() == MeshBase::MESH_UV) {
+        glBindBuffer(GL_ARRAY_BUFFER, vbo[vbo_id]);
+        glBufferData(GL_ARRAY_BUFFER, reinterpret_cast<MeshUV*>(mesh)->get_uvs().size() * 2 * sizeof(float), &reinterpret_cast<MeshUV*>(mesh)->get_uvs()[0][0], GL_STATIC_DRAW);
+        glEnableVertexAttribArray(vbo_id);
+        glVertexAttribPointer(vbo_id, 2, GL_FLOAT, GL_FALSE, 0, 0);
+        vbo_id++;
+    }
 
     /*
      * NORMALS
      */
 
-    glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo[vbo_id]);
     glBufferData(GL_ARRAY_BUFFER, mesh->get_normals().size() * 3 * sizeof(float), &mesh->get_normals()[0][0], GL_STATIC_DRAW);
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(vbo_id);
+    glVertexAttribPointer(vbo_id, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    vbo_id++;
 
     /*
      * INDICES
      */
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo[2]);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo[vbo_id]);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh->get_indices().size() * sizeof(unsigned int), &mesh->get_indices()[0], GL_STATIC_DRAW);
 
     glBindVertexArray(0);

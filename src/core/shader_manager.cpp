@@ -37,6 +37,18 @@ void ShaderManagerImpl::construct_shaders() {
     shader->add_uniform(ShaderUniform::MAT4, "view");
     shader->add_uniform(ShaderUniform::VEC3, "color");
     shader->bind_uniforms_and_attributes();
+
+    this->shaders.emplace("model_uv_shader", std::make_shared<Shader>("assets/shaders/model_uv"));
+
+    shader = this->get_shader("model_uv_shader");
+    shader->add_attribute(ShaderAttribute::POSITION, "position");
+    shader->add_attribute(ShaderAttribute::TEXTURE_COORDINATE, "uv");
+    shader->add_attribute(ShaderAttribute::NORMAL, "normal");
+    shader->add_uniform(ShaderUniform::TEXTURE, "tex");
+    shader->add_uniform(ShaderUniform::MAT4, "model");
+    shader->add_uniform(ShaderUniform::MAT4, "mvp");
+    shader->add_uniform(ShaderUniform::MAT4, "view");
+    shader->bind_uniforms_and_attributes();
 }
 
 const std::shared_ptr<Shader>& ShaderManagerImpl::get_shader(const std::string& shader_name) {

@@ -33,7 +33,7 @@ class MeshFactory {
         public:
             GLuint vao;
             GLuint vbo[4];
-            Mesh* mesh;
+            MeshBase* mesh;
             unsigned int type;
             unsigned int nr_indices;
 

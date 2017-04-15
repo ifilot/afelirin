@@ -28,7 +28,8 @@
 #include <iostream>
 #include <GL/glew.h>
 
-#include "mesh.h"
+#include "mesh_simple.h"
+#include "mesh_uv.h"
 
 class MeshLoader {
 private:
@@ -36,7 +37,7 @@ private:
 public:
     MeshLoader() {}
 
-    void load_mesh(GLuint* vao, GLuint* vbo, unsigned int* nr_indices, Mesh* mesh);
+    void load_mesh(GLuint* vao, GLuint* vbo, unsigned int* nr_indices, MeshBase* mesh);
 
 private:
 

@@ -1,15 +1,15 @@
 /**************************************************************************
- *   mesh.cpp  --  This file is part of OBJ2BIT.                          *
+ *   texture_factory.h  --  This file is part of AFELIRIN.                *
  *                                                                        *
  *   Copyright (C) 2017, Ivo Filot (ivo@ivofilot.nl)                      *
  *                                                                        *
- *   OBJ2BIT is free software:                                            *
+ *   AFELIRIN is free software:                                           *
  *   you can redistribute it and/or modify it under the terms of the      *
  *   GNU General Public License as published by the Free Software         *
  *   Foundation, either version 3 of the License, or (at your option)     *
  *   any later version.                                                   *
  *                                                                        *
- *   OBJ2BIT is distributed in the hope that it will be useful,           *
+ *   AFELIRIN is distributed in the hope that it will be useful,          *
  *   but WITHOUT ANY WARRANTY; without even the implied warranty          *
  *   of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.              *
  *   See the GNU General Public License for more details.                 *
@@ -19,18 +19,38 @@
  *                                                                        *
  **************************************************************************/
 
-#include "mesh.h"
+#ifndef _TEXTURE_MANAGER
+#define _TEXTURE_MANAGER
 
-void Mesh::add_vertex_pn(unsigned int idx, const glm::vec3& pos, const glm::vec3& normal) {
-    this->indices.push_back(idx);
-    this->vertices.push_back(pos);
-    this->normals.push_back(normal);
-}
+#include <vector>
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <unordered_map>
 
-void Mesh::add_content(const std::vector<glm::vec3>& _vertices,
-                       const std::vector<glm::vec3>& _normals,
-                       const std::vector<unsigned int>& _indices) {
-    this->indices = _indices;
-    this->vertices = _vertices;
-    this->normals = _normals;
-}
+#include "core/asset_manager.h"
+#include "util/pngfuncs.h"
+
+class TextureFactory {
+private:
+    std::unordered_map<std::string, GLuint> textures;
+
+public:
+    /**
+     * @brief       sprite manager constructor
+     *
+     * @return      sprite manager instance
+     */
+    TextureFactory();
+
+    GLuint get_texture(const std::string& name);
+
+    ~TextureFactory();
+
+private:
+    void add_texture(const std::string& name);
+
+    GLuint load_texture(const std::string& filename);
+};
+
+#endif // _TEXTURE_MANAGER
