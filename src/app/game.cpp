@@ -27,22 +27,21 @@ Game::Game(const std::shared_ptr<Camera>& _camera) :
     // create shader object here
     this->shader = ShaderManager::get().get_shader("model_uv_shader");
 
-    this->entities.emplace_back(reinterpret_cast<Entity*>(new Cog(glm::vec3(-2.8f,-2.8f,0), this->mf.get_vao("gear"), this->mf.get_nr_indices("gear"))));
-    this->entities.back()->set_color(glm::vec3(1,0,0));
-    this->entities.back()->set_scale(glm::vec3(4.0f, 4.0f, 4.0f));
-    this->entities.back()->set_angular_momentum(glm::radians(360.0f / 3.0f), glm::vec3(0,0,1));
-    this->entities.emplace_back(reinterpret_cast<Entity*>(new Cog(glm::vec3(2.8f , 2.8f,0), this->mf.get_vao("gear"), this->mf.get_nr_indices("gear"))));
-    this->entities.back()->set_color(glm::vec3(0,1,0));
-    this->entities.back()->rotate(2.0f * M_PI / 24.0f, glm::vec3(0,0,1));
-    this->entities.back()->set_scale(glm::vec3(4.0f, 4.0f, 4.0f));
-    this->entities.back()->set_angular_momentum(-glm::radians(360.0f / 3.0f), glm::vec3(0,0,1));
+    // for(float x = -24.0f; x <=24.0f; x += 8.0f) {
+    //     for(float y = -24.0f; y <=24.0f; y += 8.0f) {
+    //         this->entities.emplace_back(reinterpret_cast<Entity*>(new Cog(glm::vec3(x, y, 0.0f), this->mf.get_vao("plane"), this->mf.get_nr_indices("plane"))));
+    //         this->entities.back()->set_scale(glm::vec3(8.0f, 8.0f, 8.0f));
+    //     }
+    // }
+
+    this->entities.emplace_back(reinterpret_cast<Entity*>(new Cog(glm::vec3(0.0f, 0.0f, 0.0f), this->mf.get_vao("tank"), this->mf.get_nr_indices("tank"))));
 }
 
 void Game::draw() {
     this->shader->link_shader();
 
     glActiveTexture(GL_TEXTURE1);
-    GLuint tid = tf.get_texture("color_grid");
+    GLuint tid = tf.get_texture("tank_diffuse");
     glBindTexture(GL_TEXTURE_2D, tid);
     const glm::mat4 projection = this->camera->get_projection();
     const glm::mat4 view = this->camera->get_view();

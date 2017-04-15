@@ -30,7 +30,7 @@ PostProcessor::PostProcessor(const std::shared_ptr<Screen>& _screen) :
         texture_slot(POSTPROCESSOR_TEXTURE_SLOT),
         screen(_screen)
     {
-    this->msaa = 4;
+    this->msaa = 16;
     this->filter_flags = 0x00000000;
 
     this->load_mesh();

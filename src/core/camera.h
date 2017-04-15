@@ -107,6 +107,15 @@ public:
         return this->up;
     }
 
+    /**
+     * @brief       get current camera right direction
+     *
+     * @return      position
+     */
+    inline const glm::vec3& get_right() const {
+        return this->right;
+    }
+
     //*************************
     // SETTERS
     //*************************

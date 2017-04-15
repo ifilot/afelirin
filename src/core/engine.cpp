@@ -56,7 +56,7 @@ Engine::Engine():
     this->post_processor->window_reshape();
 
     // load camera
-    this->camera = std::shared_ptr<Camera>(reinterpret_cast<Camera*>(new CameraFPS(glm::vec3(0,0,15))));
+    this->camera = std::shared_ptr<Camera>(reinterpret_cast<Camera*>(new CameraRTS(glm::vec3(0,0,3))));
 
     // Load font writer and fonts
     this->font_writer = std::shared_ptr<FontWriter>(new FontWriter(this->screen));
@@ -243,6 +243,7 @@ void Engine::post_draw() {
     this->font_writer->write_text(0, 500.f, 150.f, 0.f, glm::vec3(1,1,1), glm::to_string(this->camera->get_position()));
     this->font_writer->write_text(0, 500.f, 100.f, 0.f, glm::vec3(1,1,1), glm::to_string(this->camera->get_center()));
     this->font_writer->write_text(0, 500.f, 50.f, 0.f, glm::vec3(1,1,1), glm::to_string(this->camera->get_up()));
+    this->font_writer->write_text(0, 500.f, 0.f, 0.f, glm::vec3(1,1,1), glm::to_string(this->camera->get_right()));
 
     this->engine_client->close_frame();
 }
@@ -260,10 +261,10 @@ void Engine::bind_commands() {
 
     this->engine_client->bind_command("on_resize", new EngineCommandOnResize(this->screen, this->post_processor, this->camera));
     this->engine_client->bind_command("on_mouse_cursor", new EngineCommandOnMouseCursor(this->mouse, this->camera));
-    this->engine_client->bind_command("on_key_w", new CameraCommandTranslate(this->camera, 3.0f, glm::vec3(0,0,-1)));
+    this->engine_client->bind_command("on_key_w", new CameraCommandTranslate(this->camera, 3.0f, glm::vec3(0,1,0)));
     this->engine_client->bind_command("on_key_a", new CameraCommandTranslate(this->camera, 3.0f, glm::vec3(-1,0,0)));
-    this->engine_client->bind_command("on_key_s", new CameraCommandTranslate(this->camera, 3.0f, glm::vec3(0,0,1)));
+    this->engine_client->bind_command("on_key_s", new CameraCommandTranslate(this->camera, 3.0f, glm::vec3(0,-1,0)));
     this->engine_client->bind_command("on_key_d", new CameraCommandTranslate(this->camera, 3.0f, glm::vec3(1,0,0)));
-    this->engine_client->bind_command("on_key_space", new CameraCommandTranslate(this->camera, 3.0f, glm::vec3(0,1,0)));
-    this->engine_client->bind_command("on_key_ctrl", new CameraCommandTranslate(this->camera, 3.0f, glm::vec3(0,-1,0)));
+    this->engine_client->bind_command("on_key_space", new CameraCommandTranslate(this->camera, 3.0f, glm::vec3(0,0,1)));
+    this->engine_client->bind_command("on_key_ctrl", new CameraCommandTranslate(this->camera, 3.0f, glm::vec3(0,0,-1)));
 }
