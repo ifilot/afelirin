@@ -1,7 +1,7 @@
 /**************************************************************************
- *   game.h  --  This file is part of AFELIRIN.                           *
+ *   mesh_factory.h  --  This file is part of AFELIRIN.                   *
  *                                                                        *
- *   Copyright (C) 2017, Ivo Filot (ivo@ivofilot.nl)                      *
+ *   Copyright (C) 2017, Ivo Filot                                        *
  *                                                                        *
  *   AFELIRIN is free software:                                           *
  *   you can redistribute it and/or modify it under the terms of the      *
@@ -19,39 +19,47 @@
  *                                                                        *
  **************************************************************************/
 
-#ifndef _GAME_H
-#define _GAME_H
+#ifndef _MESH_FACTORY_H
+#define _MESH_FACTORY_H
 
-#include <memory>
-#include <list>
+#include <unordered_map>
 
-#include "core/shader.h"
-#include "app/cog.h"
-#include "app/cube_inward.h"
+#include "core/asset_manager.h"
+#include "mesh_loader.h"
+#include "mesh_parser.h"
 
-#include "core/shader_manager.h"
-#include "core/models/mesh_factory.h"
+class MeshFactory {
+    class VertexBuffer {
+        public:
+            GLuint vao;
+            GLuint vbo[4];
+            Mesh* mesh;
+            unsigned int type;
+            unsigned int nr_indices;
 
-class Game {
+            VertexBuffer();
+
+            ~VertexBuffer();
+    };
+
 private:
-    std::shared_ptr<Shader> shader;
-    std::shared_ptr<Camera> camera;
-    MeshFactory mf;
-
-    std::vector<std::unique_ptr<Entity> > entities;
-
+    std::unordered_map<std::string, VertexBuffer> meshes;
+    MeshLoader ml;
+    MeshParser mp;
 
 public:
-    Game(const std::shared_ptr<Camera>& _camera);
+    MeshFactory();
 
-    void draw();
+    void get_mesh_objects(const std::string& name, GLuint* vao, unsigned int* nr_indices);
 
-    void update(double dt);
+    GLuint get_vao(const std::string& name);
 
-    ~Game() {};
+    unsigned int get_nr_indices(const std::string& name);
 
 private:
+    void load_mesh(const std::string& name);
 
+    const VertexBuffer* get_buffer(const std::string& name);
 };
 
-#endif //_GAME_H
+#endif //_MESH_FACTORY_H
