@@ -60,11 +60,11 @@ Engine::Engine():
 
     // Load font writer and fonts
     this->font_writer = std::shared_ptr<FontWriter>(new FontWriter(this->screen));
-    this->font_writer->add_font("./assets/fonts/retro.ttf",
+    this->font_writer->add_font("assets/fonts/retro.ttf",
                                     14,              // font size
                                     0.43f, 0.25f,    // sdf settings
-                                    32,             // start char
-                                    222             // number of chars
+                                    32,              // start char
+                                    222              // number of chars
                                     );
 
     this->screen->set_resolution_x(Settings::get().get_uint_from_keyword("settings.screen.resolution_x"));

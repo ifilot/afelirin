@@ -22,7 +22,7 @@
 #ifndef _CAMERA_H
 #define _CAMERA_H
 
-#define GLM_SWIZZLE
+#define GLM_FORCE_SWIZZLE
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
